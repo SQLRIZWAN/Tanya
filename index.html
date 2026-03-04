@@ -3,202 +3,185 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>For My Special Tanayaa ♡</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+  <title>Tanayaa... Dil Ki Baat Sun Lo ♡</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
     body {
+      margin: 0;
       font-family: 'Poppins', sans-serif;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #f9e1e8, #e0c3fc);
+      background: linear-gradient(135deg, #fff0f5, #e8daef);
       color: #333;
-      overflow-x: hidden;
+      text-align: center;
+      min-height: 100vh;
     }
     .container {
-      max-width: 900px;
+      max-width: 1000px;
       margin: 0 auto;
       padding: 20px;
-      text-align: center;
-    }
-    .profile {
-      margin: 40px 0 30px;
     }
     .profile img {
-      width: 180px;
-      height: 180px;
+      width: 240px;
+      height: 240px;
       border-radius: 50%;
-      object-fit: cover;
-      border: 8px solid white;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      border: 12px solid white;
+      box-shadow: 0 15px 40px rgba(233,30,99,0.4);
+      margin: 60px 0 20px;
     }
     h1 {
       font-family: 'Dancing Script', cursive;
-      font-size: 3.8rem;
-      color: #e91e63;
-      margin-bottom: 10px;
-      text-shadow: 2px 2px 8px rgba(233,30,99,0.3);
+      font-size: 5rem;
+      color: #c2185b;
+      margin: 10px 0;
+      text-shadow: 3px 3px 12px rgba(0,0,0,0.2);
     }
     .username {
-      font-size: 1.4rem;
-      color: #7b1fa2;
-      margin-bottom: 30px;
+      font-size: 1.8rem;
+      color: #7e57c2;
+      margin-bottom: 40px;
     }
-    .message {
-      font-size: 1.3rem;
-      line-height: 1.6;
-      max-width: 700px;
-      margin: 0 auto 40px;
+    .msg {
+      font-size: 1.4rem;
+      line-height: 1.8;
+      max-width: 850px;
+      margin: 0 auto 60px;
       color: #444;
+    }
+    .question {
+      font-size: 3rem;
+      color: #e91e63;
+      margin: 70px 0 50px;
+      font-weight: bold;
+    }
+    .yes-btn {
+      padding: 25px 100px;
+      font-size: 2.4rem;
+      font-weight: bold;
+      background: linear-gradient(45deg, #ff4081, #f50057);
+      color: white;
+      border: none;
+      border-radius: 80px;
+      cursor: pointer;
+      box-shadow: 0 15px 40px rgba(244,143,177,0.7);
+      transition: all 0.4s;
+    }
+    .yes-btn:hover {
+      transform: scale(1.2);
+      box-shadow: 0 20px 50px rgba(233,30,99,0.8);
     }
     .gallery {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 20px;
-      margin: 40px 0;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 30px;
+      margin: 70px 0;
     }
     .gallery img {
       width: 100%;
-      border-radius: 16px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-      transition: transform 0.3s;
+      border-radius: 20px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+      transition: transform 0.4s;
     }
     .gallery img:hover {
-      transform: scale(1.08);
+      transform: scale(1.1);
     }
-    .question {
-      font-size: 2.2rem;
-      color: #c2185b;
-      margin: 50px 0 30px;
-      font-weight: 600;
-    }
-    .buttons {
-      display: flex;
-      justify-content: center;
-      gap: 60px;
-      flex-wrap: wrap;
-    }
-    .btn {
-      padding: 18px 60px;
-      font-size: 1.5rem;
-      font-weight: bold;
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    }
-    .yes {
-      background: #ff4081;
-      color: white;
-    }
-    .yes:hover {
-      background: #f50057;
-      transform: scale(1.15);
-    }
-    .no {
-      background: #78909c;
-      color: white;
-    }
-    .no:hover {
-      background: #607d8b;
-    }
-    .heart-bg {
+    .hearts {
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      inset: 0;
       pointer-events: none;
-      overflow: hidden;
       z-index: -1;
     }
     .heart {
       position: absolute;
-      font-size: 30px;
-      color: rgba(233,30,99,0.4);
-      animation: float 12s infinite linear;
-      user-select: none;
+      font-size: 40px;
+      color: rgba(233,30,99,0.8);
+      animation: float 14s linear infinite;
     }
     @keyframes float {
-      0% { transform: translateY(100vh) rotate(0deg); opacity: 0.6; }
-      100% { transform: translateY(-150px) rotate(360deg); opacity: 0; }
+      0% { transform: translateY(120vh) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(-200px) rotate(1440deg); opacity: 0; }
     }
     @media (max-width: 600px) {
-      h1 { font-size: 2.8rem; }
-      .question { font-size: 1.8rem; }
-      .btn { padding: 15px 40px; font-size: 1.3rem; }
+      h1 { font-size: 3.8rem; }
+      .question { font-size: 2.4rem; }
+      .yes-btn { padding: 18px 70px; font-size: 1.9rem; }
     }
   </style>
 </head>
 <body>
 
-  <div class="heart-bg" id="hearts"></div>
+  <div class="hearts" id="hearts"></div>
 
   <div class="container">
     <div class="profile">
-      <img src="your_profile_photo.jpg" alt="Tanayaa">
+      <img src="https://thumbs.dreamstime.com/b/portrait-beautiful-smiling-indian-girl-young-indian-woman-model-traditional-jewelry-set-costume-saree-98312742.jpg" alt="Tanayaa">
     </div>
 
-    <h1>Heyy Tanayaa ♡</h1>
+    <h1>Heyy Tanayaa... ♡</h1>
     <div class="username">@miss__Tanayaya__90</div>
 
-    <p class="message">
-      Bahut time se dil mein yeh baat thi... tumse baat kar ke, tumhari smile dekh ke, har din thoda zyada special lagne laga tha. <br><br>
-      Tum meri wajah se thoda sa bhi smile karti ho toh mera din ban jata hai. <br><br>
-      Toh seedha sawal pooch leta hoon...
+    <p class="msg">
+      Teri har story, har photo dekh ke dil yeh kehta hai ki yeh ladki kitni khoobsurat aur kitni special hai... <br><br>
+      Teri smile se mera mood badal jata hai, teri baatein dil ko sukoon deti hain. <br>
+      Bahut time se yeh feeling andar thi, ab bol deta hoon seedha...
     </p>
 
-    <div class="question">Kya tum meri girlfriend banogi? 🥺❤️</div>
+    <div class="question">Kya tu meri girlfriend banegi? 🥺❤️</div>
 
-    <div class="buttons">
-      <button class="btn yes" onclick="yesClicked()">YES!! 😍</button>
-      <button class="btn no" onclick="noClicked()">No</button>
-    </div>
+    <button class="yes-btn" onclick="yesClicked()">YES!! 😍❤️</button>
 
     <div class="gallery">
-      <!-- Yahan apni 10-15 photos daal do (same folder mein rakhna) -->
-      <img src="photo1.jpg" alt="Tanayaa 1">
-      <img src="photo2.jpg" alt="Tanayaa 2">
-      <img src="photo3.jpg" alt="Tanayaa 3">
-      <img src="photo4.jpg" alt="Tanayaa 4">
-      <img src="photo5.jpg" alt="Tanayaa 5">
-      <img src="photo6.jpg" alt="Tanayaa 6">
-      <img src="photo7.jpg" alt="Tanayaa 7">
-      <img src="photo8.jpg" alt="Tanayaa 8">
-      <img src="photo9.jpg" alt="Tanayaa 9">
-      <img src="photo10.jpg" alt="Tanayaa 10">
-      <!-- Agar zyada photos hain toh aur add kar dena -->
+      <!-- Sab photos automatically load hongi (real vibe wali selected) -->
+      <img src="https://thumbs.dreamstime.com/b/portrait-beautiful-indian-girl-young-hindu-woman-model-tatoo-mehndi-kundan-jewelry-traditional-costume-portrait-141418437.jpg" alt="Pyari smile">
+      <img src="https://thumbs.dreamstime.com/b/portrait-beautiful-indian-girl-red-bridal-sari-over-golden-bokeh-young-hindu-woman-model-kundan-jewelry-traditional-186372857.jpg" alt="Red glow">
+      <img src="https://c8.alamy.com/comp/EB9YDC/smiling-indian-woman-wearing-a-dupatta-scarf-with-a-bindi-portrait-EB9YDC.jpg" alt="Bindi wali cutie">
+      <img src="https://thumbs.dreamstime.com/b/young-indian-woman-smiling-showing-traditional-jhumka-earrings-portrait-beautiful-wearing-blue-eyeliner-silver-429508939.jpg" alt="Jhumka style">
+      <img src="https://c8.alamy.com/comp/2J3BTTM/close-up-portrait-of-an-indian-beautiful-girl-in-traditional-outfit-2J3BTTM.jpg" alt="Close-up beauty">
+      <img src="https://thumbs.dreamstime.com/b/young-indian-woman-beauty-portrait-traditional-clothing-closeup-shot-30768802.jpg" alt="Traditional closeup">
+      <img src="https://as1.ftcdn.net/jpg/00/74/12/08/1000_F_74120843_d6ARK81WJEakwycHK0Cy1YkTWwWv9NNc.jpg" alt="Long hair charm">
+      <img src="https://thumbs.dreamstime.com/b/portrait-beautiful-smiling-indian-girl-young-indian-woman-model-traditional-jewelry-set-costume-saree-98312742.jpg" alt="Saree queen">
     </div>
   </div>
 
   <script>
-    // Floating hearts background
+    // Floating hearts
     function createHeart() {
       const heart = document.createElement("div");
-      heart.classList.add("heart");
-      heart.innerHTML = "♡";
+      heart.className = "heart";
+      heart.innerHTML = Math.random() > 0.5 ? "❤️" : "♡";
       heart.style.left = Math.random() * 100 + "vw";
-      heart.style.animationDuration = (Math.random() * 8 + 8) + "s";
-      heart.style.fontSize = (Math.random() * 20 + 20) + "px";
+      heart.style.animationDuration = (Math.random() * 10 + 10) + "s";
+      heart.style.fontSize = (Math.random() * 30 + 25) + "px";
       document.getElementById("hearts").appendChild(heart);
-      setTimeout(() => heart.remove(), 15000);
+      setTimeout(() => heart.remove(), 20000);
     }
     setInterval(createHeart, 400);
 
     function yesClicked() {
-      alert("Yayyyy! 😍❤️ Ab toh dil garden garden ho gaya! Ab call karo jaldi, baat karni hai bohot saari 🥰");
-      // Optional: yaha koi music ya redirect bhi daal sakte ho
-    }
-
-    function noClicked() {
-      alert("Arre... galti se daba diya kya? 😭 Ek baar aur soch lo na... please? 🥺");
-      // Ya fir mazak mein button move kar sakte ho (advanced)
+      alert("Yayyyy!!! 😍❤️ Ab toh dil full happy mode mein aa gaya! Jaldi reply de na, bohot excited hoon 🥰");
+      // Confetti effect
+      for (let i = 0; i < 150; i++) {
+        setTimeout(() => {
+          const conf = document.createElement("div");
+          conf.style.position = "fixed";
+          conf.style.width = "14px";
+          conf.style.height = "14px";
+          conf.style.background = `hsl(${Math.random()*360}, 100%, 60%)`;
+          conf.style.left = Math.random()*100 + "vw";
+          conf.style.top = "-30px";
+          conf.style.borderRadius = "50%";
+          conf.style.pointerEvents = "none";
+          conf.style.animation = "fallConf 5s linear";
+          document.body.appendChild(conf);
+          setTimeout(() => conf.remove(), 6000);
+        }, i * 30);
+      }
     }
   </script>
+
+  <style>
+    @keyframes fallConf {
+      to { transform: translateY(140vh) rotate(2000deg); opacity: 0; }
+    }
+  </style>
 
 </body>
 </html>

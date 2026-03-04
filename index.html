@@ -1,391 +1,654 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>💌 SQL ka Dil ka Mamla</title>
-<style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-:root{
-  --pink:#ff4d79;
-  --yellow:#ffe066;
-  --purple:#a259ff;
-  --bg:#0d0014;
-  --card:#1a0025;
-  --green:#00e676;
-}
-html{scroll-behavior:smooth;}
-body{
-  background:var(--bg);
-  font-family:system-ui, -apple-system, "Segoe UI", sans-serif;
-  color:#fff;
-  overflow-x:hidden;
-  font-size:16px;
-  line-height:1.6;
-}
-
-/* ── STARS ── */
-#stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
-
-/* ── PETALS ── */
-.petal{position:fixed;top:-60px;font-size:1.3rem;pointer-events:none;z-index:1;animation:fall linear infinite;}
-@keyframes fall{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(400deg);opacity:0;}}
-
-/* ── WRAPPER ── */
-.wrap{position:relative;z-index:2;max-width:500px;margin:0 auto;padding:0 16px 80px;}
-
-/* ── CARDS ── */
-.card{
-  background:var(--card);
-  border-radius:20px;
-  padding:28px 20px;
-  margin:24px 0;
-  border:1.5px solid rgba(255,255,255,0.08);
-  box-shadow:0 8px 40px rgba(0,0,0,0.5);
-}
-
-/* ── HERO ── */
-.hero{text-align:center;padding:50px 16px 10px;}
-.bounce{font-size:4.5rem;display:block;animation:wobble 2s ease-in-out infinite;}
-@keyframes wobble{0%,100%{transform:rotate(-8deg);}50%{transform:rotate(8deg) scale(1.1);}}
-
-.hero h1{
-  font-size:clamp(1.6rem,6vw,2.4rem);
-  font-weight:800;
-  line-height:1.25;
-  margin-top:14px;
-  background:linear-gradient(135deg,#ff4d79,#a259ff,#ffe066);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-.hero p{margin-top:10px;font-size:1rem;color:#b0a0c0;}
-
-/* ── GIRL AVATAR ── */
-.avatar-box{
-  width:130px;height:130px;border-radius:50%;
-  margin:20px auto;
-  background:linear-gradient(135deg,#ff9eb5,#c084fc);
-  display:flex;align-items:center;justify-content:center;
-  font-size:5rem;
-  border:3px solid var(--pink);
-  box-shadow:0 0 0 8px rgba(255,77,121,0.15),0 0 40px rgba(255,77,121,0.35);
-  animation:glow 2.5s ease-in-out infinite;
-  line-height:1;
-}
-@keyframes glow{
-  0%,100%{box-shadow:0 0 0 8px rgba(255,77,121,0.15),0 0 30px rgba(255,77,121,0.3);}
-  50%{box-shadow:0 0 0 14px rgba(255,77,121,0.2),0 0 55px rgba(255,77,121,0.55);}
-}
-
-/* ── SECTION TITLE ── */
-.sec-title{font-size:1.2rem;font-weight:800;color:var(--yellow);margin-bottom:14px;}
-
-/* ── REASON LIST ── */
-.reasons{list-style:none;display:flex;flex-direction:column;gap:10px;}
-.reasons li{
-  background:rgba(255,255,255,0.05);
-  border-radius:14px;padding:14px 16px;
-  border-left:3px solid var(--pink);
-  font-size:0.97rem;color:#f0d0e0;
-  display:flex;align-items:flex-start;gap:10px;
-}
-.num{
-  background:var(--pink);color:white;border-radius:50%;
-  width:26px;height:26px;min-width:26px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:0.78rem;font-weight:700;
-}
-
-/* ── METER ── */
-.meter-label{font-size:0.9rem;color:#c0b0d0;margin-bottom:6px;margin-top:12px;}
-.meter-bar{background:rgba(255,255,255,0.08);border-radius:20px;height:20px;overflow:hidden;}
-.meter-fill{
-  height:100%;border-radius:20px;
-  background:linear-gradient(90deg,var(--pink),var(--purple));
-  position:relative;
-  animation:fillUp 1.5s cubic-bezier(.22,1,.36,1) both;
-}
-@keyframes fillUp{from{width:0%;}to{width:var(--w);}}
-.meter-fill::after{
-  content:attr(data-val);position:absolute;right:8px;top:50%;
-  transform:translateY(-50%);font-size:0.72rem;font-weight:700;color:white;
-}
-
-/* ── PROMISE ── */
-.promise-item{
-  display:flex;gap:12px;align-items:flex-start;
-  padding:13px 0;border-bottom:1px solid rgba(255,255,255,0.06);
-  font-size:0.97rem;color:#e0c0d0;
-}
-.promise-item:last-child{border:none;}
-.pi{font-size:1.5rem;flex-shrink:0;}
-
-/* ── BIG Q ── */
-.big-q{text-align:center;}
-.ring{font-size:5rem;display:block;margin:0 auto 14px;animation:ringpop 1s ease-in-out infinite alternate;filter:drop-shadow(0 0 20px rgba(255,224,102,0.6));}
-@keyframes ringpop{from{transform:scale(1) rotate(-5deg);}to{transform:scale(1.12) rotate(5deg);}}
-.q-text{
-  font-size:clamp(1.5rem,5.5vw,2.1rem);font-weight:800;line-height:1.35;
-  background:linear-gradient(135deg,#ff4d79,#ffe066);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-.q-sub{font-size:0.9rem;color:#b0a0c0;margin-top:8px;}
-
-/* ── BUTTONS ── */
-.btn-zone{display:flex;gap:12px;margin-top:22px;justify-content:center;}
-.btn-yes{
-  flex:1;padding:18px 10px;border-radius:50px;
-  font-size:1.15rem;font-weight:800;
-  background:linear-gradient(135deg,#ff4d79,#c2185b);
-  color:white;border:none;cursor:pointer;
-  box-shadow:0 8px 28px rgba(255,77,121,0.5);
-  transition:transform 0.15s;font-family:inherit;
-}
-.btn-yes:active{transform:scale(0.95);}
-.btn-yes:hover{transform:scale(1.05);}
-
-.btn-no{
-  flex:1;padding:18px 10px;border-radius:50px;
-  font-size:1rem;font-weight:700;
-  background:rgba(255,255,255,0.06);color:#c0a0b0;
-  border:1.5px solid rgba(255,255,255,0.15);
-  cursor:pointer;transition:transform 0.15s;font-family:inherit;
-}
-.btn-no:active{transform:scale(0.95);}
-
-/* ── YES PANEL ── */
-#yes-panel{display:none;text-align:center;}
-.yes-emoji{font-size:4rem;display:block;margin-bottom:10px;animation:pop 0.5s cubic-bezier(.22,1,.36,1);}
-@keyframes pop{from{transform:scale(0);}to{transform:scale(1);}}
-.yes-title{font-size:1.7rem;font-weight:800;color:var(--green);line-height:1.25;}
-.yes-msg{font-size:0.97rem;color:#b0e0c0;margin-top:12px;line-height:1.8;}
-
-/* ── KAZI PANEL ── */
-#kazi-panel{display:none;}
-.kazi-top{text-align:center;margin-bottom:18px;}
-.kazi-big{font-size:3.5rem;display:block;margin-bottom:8px;}
-.kazi-title{font-size:1.45rem;font-weight:800;color:var(--yellow);line-height:1.2;}
-.stamp-box{
-  background:rgba(255,77,121,0.12);border:2px dashed var(--pink);
-  border-radius:16px;padding:18px;margin-bottom:16px;text-align:center;
-}
-.stamp-text{
-  font-size:1.6rem;font-weight:800;color:var(--pink);letter-spacing:0.05em;
-  text-transform:uppercase;animation:blink 0.8s step-start infinite;
-}
-@keyframes blink{50%{opacity:0.3;}}
-.charges{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
-.charges li{
-  background:rgba(255,255,255,0.04);border-radius:12px;
-  padding:12px 14px;font-size:0.95rem;color:#f0d0a0;
-  border-left:3px solid var(--yellow);
-}
-.verdict-box{
-  background:rgba(162,89,255,0.1);border:1px solid rgba(162,89,255,0.3);
-  border-radius:14px;padding:16px;
-  font-size:0.95rem;color:#d0b0ff;line-height:1.8;text-align:center;
-}
-.btn-retry{
-  margin-top:16px;width:100%;padding:16px;border-radius:50px;
-  font-size:1.05rem;font-weight:700;
-  background:linear-gradient(135deg,var(--purple),#6200ea);
-  color:white;border:none;cursor:pointer;font-family:inherit;
-  box-shadow:0 6px 22px rgba(162,89,255,0.4);transition:transform 0.15s;
-}
-.btn-retry:hover{transform:scale(1.03);}
-
-/* ── HEARTS ── */
-#hearts{position:fixed;inset:0;pointer-events:none;z-index:100;}
-
-.footer{text-align:center;padding:20px;font-size:0.8rem;color:#5a4060;}
-
-/* ── REVEAL ── */
-.reveal{opacity:0;transform:translateY(28px);transition:opacity 0.65s ease,transform 0.65s ease;}
-.reveal.visible{opacity:1;transform:translateY(0);}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Trade Modal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: #f5f5f5; }
+        
+        .trade-modal {
+            position: fixed;
+            inset: 0;
+            background: #ffffff;
+            z-index: 9999;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .order-book-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 2px 8px;
+            font-size: 11px;
+            position: relative;
+            font-family: 'Inter', monospace;
+        }
+        
+        .depth-bar {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            opacity: 0.15;
+        }
+        
+        .slider-track {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: #e5e7eb;
+            outline: none;
+        }
+        
+        .slider-track::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2px solid #14b8a6;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .tab-active {
+            color: #000;
+            font-weight: 600;
+            border-bottom: 2px solid #000;
+        }
+        
+        .btn-long {
+            background: #06b6d4;
+            color: white;
+        }
+        
+        .btn-short {
+            background: #ec4899;
+            color: white;
+        }
+        
+        .animate-pulse-quick {
+            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
 </head>
 <body>
 
-<canvas id="stars"></canvas>
-<div id="hearts"></div>
-
-<div class="wrap">
-
-  <!-- HERO -->
-  <div class="hero reveal">
-    <span class="bounce">💌</span>
-    <div class="avatar-box">👩</div>
-    <h1>Tanaya ji,<br/>ek VERY zaruri baat hai! 😬</h1>
-    <p>Yeh page SQL ne bahut himmat jod ke banaya hai.<br/>Neechay scroll karte jao… 👇😅</p>
-  </div>
-
-  <!-- WHY -->
-  <div class="card reveal">
-    <p class="sec-title">🤔 Yeh website kyun banayi?</p>
-    <ul class="reasons">
-      <li><span class="num">1</span>Seedha baat karne ki himmat nahi thi — toh website bana diya 😭💻</li>
-      <li><span class="num">2</span>WhatsApp pe "seen" karke ignore ho jaata — yahan ignore ka option nahi hai 😏</li>
-      <li><span class="num">3</span>Flowers mein allergy hai mujhe — toh digital pyaar bheja 🌸🤧</li>
-      <li><span class="num">4</span>Tumhari muskaan dekhi toh akal kaam karna band kar deti hai 🧠❌</li>
-    </ul>
-  </div>
-
-  <!-- METER -->
-  <div class="card reveal">
-    <p class="sec-title">📊 Dil ka Report Card (Honest wala)</p>
-    <p class="meter-label">Tumhare liye Pyaar 💕</p>
-    <div class="meter-bar"><div class="meter-fill" style="--w:98%" data-val="98%"></div></div>
-    <p class="meter-label">Tumhare bina akela pan 😢</p>
-    <div class="meter-bar"><div class="meter-fill" style="--w:100%;background:linear-gradient(90deg,#a259ff,#ff4d79)" data-val="100%"></div></div>
-    <p class="meter-label">Tumse baat karte waqt khushi ☀️</p>
-    <div class="meter-bar"><div class="meter-fill" style="--w:100%;background:linear-gradient(90deg,#ffe066,#ff9800)" data-val="100%"></div></div>
-    <p class="meter-label">Tumhare saamne meri himmat 😅</p>
-    <div class="meter-bar"><div class="meter-fill" style="--w:8%;background:linear-gradient(90deg,#00e676,#00bcd4)" data-val="8% 😂"></div></div>
-    <p class="meter-label">Teri yaad aane ka rate 🥺</p>
-    <div class="meter-bar"><div class="meter-fill" style="--w:100%;background:linear-gradient(90deg,#ff6ec7,#a259ff)" data-val="24/7"></div></div>
-  </div>
-
-  <!-- PROMISES -->
-  <div class="card reveal">
-    <p class="sec-title">📜 Meri Official Promises 🤝</p>
-    <div class="promise-item"><span class="pi">😂</span><span>Roz ek naya meme bhejunga — hasna compulsory hai, warna penalty lagegi</span></div>
-    <div class="promise-item"><span class="pi">🍕</span><span>Khana tum choose karo, bill main dunga… tab tak jab wallet rota na ho 😅</span></div>
-    <div class="promise-item"><span class="pi">🎵</span><span>Tumhare gane bajaunga — apne wale nahi. Yeh meri sabse badi qurbani hai 😤</span></div>
-    <div class="promise-item"><span class="pi">📱</span><span>Tumhara message aate hi reply — sirf 0.001 second mein… ya phir jab neend na aa rahi ho 😬</span></div>
-    <div class="promise-item"><span class="pi">🧠</span><span>Sab jawab Google pe dhundunga — yeh keh ke nahi bolunga ki "mujhe sab pata hai" 😌</span></div>
-    <div class="promise-item"><span class="pi">❤️</span><span>Sachha pyaar doonga — yeh wala promise serious hai, baaki sab comedy thi 🥺</span></div>
-  </div>
-
-  <!-- QUESTION -->
-  <div class="card reveal big-q" id="question-card">
-    <span class="ring">💍</span>
-    <p class="q-text">Toh Tanaya ji…<br/>Kya aap SQL ki<br/>ban jaengi? 🥺😅</p>
-    <p class="q-sub">⚠️ Sochna mat — seedha dil ki suno!</p>
-    <div class="btn-zone">
-      <button class="btn-yes" onclick="sayYes()">💕 Haan ji!</button>
-      <button class="btn-no" onclick="sayNo()">😐 Nahi…</button>
-    </div>
-  </div>
-
-  <!-- YES -->
-  <div class="card" id="yes-panel">
-    <span class="yes-emoji">🥳🎉💖</span>
-    <p class="yes-title">BHAI SUNAAA?!<br/>TANAYA NE HAAN BOL DIYA!! 🎊</p>
-    <p class="yes-msg">
-      SQL bhai ab rona band karo! 😭➡️😍<br/><br/>
-      🌹 Tumhari kahani shuru hoti hai aaj se…<br/>
-      😂 Milke khub hanso<br/>
-      🍕 Milke khub khao<br/>
-      💕 Aur khub pyaar karo!<br/><br/>
-      <strong style="color:#ffe066;font-size:1.1rem;">SQL 💉 + Tanaya 🌹 = 💑 Forever ∞</strong>
-    </p>
-  </div>
-
-  <!-- KAZI -->
-  <div class="card" id="kazi-panel">
-    <div class="kazi-top">
-      <span class="kazi-big">⚖️👨‍⚖️</span>
-      <p class="kazi-title">🔴 KAZI KI ADALAT MEIN<br/>HAZIR HO TANAYA JI! 🔴</p>
-      <p style="font-size:0.85rem;color:#b0a0c0;margin-top:6px;">Case No. 786/SQL — "Dil Todhna Maamla"</p>
+<div id="tradeModal" class="trade-modal">
+    <!-- Header -->
+    <div class="sticky top-0 bg-white z-50 border-b border-gray-100">
+        <div class="flex items-center justify-between px-4 py-3">
+            <div class="flex items-center gap-2">
+                <button onclick="closeModal()" class="p-2 hover:bg-gray-100 rounded-full">
+                    <i class="fas fa-arrow-left text-gray-700"></i>
+                </button>
+                <div>
+                    <h1 class="font-bold text-lg flex items-center gap-1">
+                        FETUSDT
+                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                    </h1>
+                    <p class="text-xs text-gray-500">Perpetual <span class="text-pink-500">-5.37%</span></p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="p-2 hover:bg-gray-100 rounded-full">
+                    <i class="fas fa-chart-line text-gray-700"></i>
+                </button>
+                <button class="p-2 hover:bg-gray-100 rounded-full">
+                    <i class="fas fa-ellipsis-v text-gray-700"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Top Tabs -->
+        <div class="flex border-b border-gray-200 overflow-x-auto hide-scrollbar">
+            <button class="tab-active px-4 py-3 text-sm whitespace-nowrap" onclick="switchTopTab('futures')">Futures</button>
+            <button class="px-4 py-3 text-sm text-gray-500 whitespace-nowrap" onclick="switchTopTab('spot')">Spot</button>
+            <button class="px-4 py-3 text-sm text-gray-500 whitespace-nowrap" onclick="switchTopTab('margin')">Margin</button>
+            <button class="px-4 py-3 text-sm text-gray-500 whitespace-nowrap" onclick="switchTopTab('onchain')">Onchain</button>
+            <button class="px-4 py-3 text-sm text-gray-500 whitespace-nowrap" onclick="switchTopTab('earn')">Earn</button>
+            <button class="px-4 py-3 text-sm text-gray-500 whitespace-nowrap" onclick="switchTopTab('tools')">Tools</button>
+        </div>
     </div>
 
-    <div class="stamp-box">
-      <p class="stamp-text">🔨 FAISLA SUNAO KAZI SAHAB!</p>
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+        <!-- Settings Bar -->
+        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-white">
+            <div class="flex items-center gap-2">
+                <button onclick="toggleMarginMode()" id="marginModeBtn" class="flex items-center gap-1 px-3 py-1.5 bg-gray-100 rounded-lg text-sm font-medium">
+                    Cross
+                    <i class="fas fa-chevron-down text-xs"></i>
+                </button>
+                <button onclick="adjustLeverage()" class="flex items-center gap-1 px-3 py-1.5 bg-gray-100 rounded-lg text-sm font-medium">
+                    <span id="leverageText">10x</span>
+                    <i class="fas fa-pen text-xs"></i>
+                </button>
+                <button class="px-3 py-1.5 bg-gray-100 rounded-lg text-sm font-medium">S</button>
+            </div>
+            <div class="text-right">
+                <p class="text-xs text-gray-500">Funding rate / Countdown</p>
+                <p class="text-xs font-mono text-pink-500">-0.0443% / 07:55:52</p>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="flex flex-col lg:flex-row flex-1">
+            <!-- Left Side - Trading Panel -->
+            <div class="flex-1 p-4 border-r border-gray-100">
+                <!-- Open/Close Toggle -->
+                <div class="flex bg-gray-100 rounded-lg p-1 mb-4">
+                    <button onclick="setPositionSide('open')" id="btnOpen" class="flex-1 py-2 rounded-md text-sm font-medium bg-white shadow-sm text-black">Open</button>
+                    <button onclick="setPositionSide('close')" id="btnClose" class="flex-1 py-2 rounded-md text-sm font-medium text-gray-500">Close</button>
+                </div>
+
+                <!-- Order Type -->
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <button onclick="showOrderTypes()" class="flex items-center gap-1 text-sm font-medium">
+                            <span id="orderTypeText">Limit</span>
+                            <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                        </button>
+                        <button onclick="toggleBBO()" id="bboBtn" class="px-3 py-1 border border-gray-300 rounded text-xs font-medium">BBO</button>
+                    </div>
+                </div>
+
+                <!-- Price Input -->
+                <div class="mb-4">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-xs text-gray-500">Price (USDT)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="adjustPrice(-0.01)" class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded text-gray-600">-</button>
+                        <input type="number" id="priceInput" class="flex-1 text-center font-mono text-lg font-medium border-b border-gray-200 py-1 focus:outline-none" value="0.1479" step="0.0001">
+                        <button onclick="adjustPrice(0.01)" class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded text-gray-600">+</button>
+                    </div>
+                </div>
+
+                <!-- Quantity -->
+                <div class="mb-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs text-gray-500">Quantity (FET)</span>
+                        <span class="text-xs font-medium">27%</span>
+                    </div>
+                    <input type="number" id="quantityInput" class="w-full bg-gray-50 rounded-lg px-3 py-2 text-sm font-mono mb-2 focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="0.00" oninput="calculateValues()">
+                    
+                    <!-- Slider -->
+                    <div class="relative pt-1">
+                        <input type="range" min="0" max="100" value="27" class="slider-track" oninput="updateSlider(this.value)">
+                        <div class="flex justify-between mt-1 text-xs text-gray-400">
+                            <span>0</span>
+                            <span id="sliderValue">27%</span>
+                            <span>FET</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TP/SL -->
+                <div class="flex items-center gap-2 mb-4">
+                    <input type="checkbox" id="tpSLCheck" class="w-4 h-4 rounded border-gray-300 text-cyan-600 focus:ring-cyan-500" onchange="toggleTP SL()">
+                    <label for="tpSLCheck" class="text-sm text-gray-700">TP/SL</label>
+                </div>
+
+                <!-- TP/SL Inputs (Hidden by default) -->
+                <div id="tpslInputs" class="hidden mb-4 space-y-2">
+                    <input type="number" placeholder="Take Profit" class="w-full bg-gray-50 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    <input type="number" placeholder="Stop Loss" class="w-full bg-gray-50 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-pink-500">
+                </div>
+
+                <!-- Available Info -->
+                <div class="space-y-1 mb-4 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Available</span>
+                        <span class="font-mono">0.00 USDT <i class="fas fa-plus-circle text-gray-400 text-xs"></i></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Max open</span>
+                        <span class="font-mono">0.00 FET</span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <button onclick="placeOrder('buy')" class="btn-long py-3 rounded-lg font-bold text-sm shadow-lg shadow-cyan-200 active:scale-95 transition-transform">
+                        <div class="flex flex-col items-center">
+                            <span>Open long</span>
+                            <span id="buyCost" class="text-xs font-normal opacity-80">0.00 USDT</span>
+                        </div>
+                    </button>
+                    <button onclick="placeOrder('sell')" class="btn-short py-3 rounded-lg font-bold text-sm shadow-lg shadow-pink-200 active:scale-95 transition-transform">
+                        <div class="flex flex-col items-center">
+                            <span>Open short</span>
+                            <span id="sellCost" class="text-xs font-normal opacity-80">0.00 USDT</span>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Max Open Info -->
+                <div class="space-y-1 mb-4 text-xs text-gray-500">
+                    <div class="flex justify-between">
+                        <span>Max open</span>
+                        <span class="font-mono">-- FET</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Est. liq. price</span>
+                        <span class="font-mono">-- USDT</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side - Order Book -->
+            <div class="w-full lg:w-64 bg-white border-l border-gray-100 flex flex-col">
+                <div class="flex-1 overflow-hidden relative">
+                    <!-- Current Price -->
+                    <div class="sticky top-0 bg-white z-10 py-2 px-2 border-b border-gray-100 text-center">
+                        <span class="text-2xl font-bold font-mono text-cyan-600">0.1479</span>
+                        <span class="text-xs text-gray-500 block">≈$0.1479</span>
+                    </div>
+                    
+                    <!-- Asks (Sells) -->
+                    <div id="asksContainer" class="space-y-0.5">
+                        <!-- Dynamic content -->
+                    </div>
+                    
+                    <!-- Bids (Buys) -->
+                    <div id="bidsContainer" class="space-y-0.5 mt-1">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+                
+                <!-- Buy/Sell Ratio -->
+                <div class="p-2 border-t border-gray-100 bg-gray-50">
+                    <div class="flex items-center justify-between text-xs mb-1">
+                        <span class="text-cyan-600">B 51%</span>
+                        <span class="text-pink-500">49% S</span>
+                    </div>
+                    <div class="h-1 bg-pink-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-cyan-500 w-[51%]"></div>
+                    </div>
+                    <div class="mt-2 text-center font-mono text-xs text-gray-600">
+                        0.0001
+                        <i class="fas fa-chevron-down ml-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Tabs -->
+        <div class="border-t border-gray-200 bg-white">
+            <div class="flex overflow-x-auto hide-scrollbar">
+                <button onclick="switchBottomTab('positions')" id="tabPositions" class="tab-active px-4 py-3 text-sm whitespace-nowrap">Positions(0)</button>
+                <button onclick="switchBottomTab('orders')" id="tabOrders" class="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">Orders(0)</button>
+                <button onclick="switchBottomTab('bots')" id="tabBots" class="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">Bots (0)</button>
+                <button onclick="switchBottomTab('assets')" id="tabAssets" class="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">Assets</button>
+            </div>
+            
+            <!-- Tab Content -->
+            <div class="p-4 min-h-[200px]">
+                <div id="contentPositions" class="text-center py-8">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-inbox text-gray-400 text-2xl"></i>
+                    </div>
+                    <p class="text-gray-500 text-sm mb-4">No open positions.</p>
+                    <div class="flex justify-center gap-2">
+                        <button class="px-4 py-2 bg-gray-100 rounded-lg text-xs font-medium">Transfer</button>
+                        <button class="px-4 py-2 bg-gray-100 rounded-lg text-xs font-medium">Demo trading</button>
+                        <button class="px-4 py-2 bg-gray-100 rounded-lg text-xs font-medium">Futures Kickoff</button>
+                    </div>
+                </div>
+                
+                <div id="contentOrders" class="hidden text-center py-8 text-gray-500 text-sm">
+                    No open orders
+                </div>
+                
+                <div id="contentBots" class="hidden text-center py-8 text-gray-500 text-sm">
+                    No active bots
+                </div>
+                
+                <div id="contentAssets" class="hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-sm text-gray-600">Available: 0.00 USDT</span>
+                        <button class="text-xs text-cyan-600 font-medium">Close all</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="h-64 bg-white border-t border-gray-200 p-4">
+            <h3 class="text-sm font-bold mb-2">FETUSDT Chart</h3>
+            <div class="w-full h-full bg-gray-50 rounded-lg flex items-center justify-center">
+                <div class="text-center">
+                    <i class="fas fa-chart-area text-gray-300 text-4xl mb-2"></i>
+                    <p class="text-xs text-gray-400">Chart Integration Ready</p>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <p style="font-size:0.9rem;color:#c0b0a0;margin-bottom:12px;">
-      👨‍⚖️ <strong style="color:#ffe066;">Mulzim:</strong> Tanaya ji<br/>
-      📋 <strong style="color:#ffe066;">Jurm:</strong> Ek pyaare bande ka dil todna
-    </p>
-
-    <ul class="charges">
-      <li>🔴 Charge 1: Itni cute hoke "Nahi" kehna — yeh toh IPC section 302 pyaar ka hai!</li>
-      <li>🟡 Charge 2: SQL ne raat raat jaag ke website banayi — aur aapne "Nahi" bol diya?! Sharam!</li>
-      <li>🟠 Charge 3: Andar se "Haan" kehna chahti thi — court ko pata hai 👀</li>
-      <li>🟣 Charge 4: SQL ab roz sad memes bhejega — yeh crime ka natija hoga!</li>
-    </ul>
-
-    <div class="verdict-box">
-      👨‍⚖️ <strong>Kazi ka Faisla:</strong><br/><br/>
-      "Tanaya ji ko hukum diya jaata hai ki woh<br/>
-      DOBARA sochen aur sahi jawab dein!<br/><br/>
-      Warna SQL 365 din, 24 ghante<br/>
-      <em>🎵 Tum hi ho… tum hi ho…</em> bhejta rahega!<br/><br/>
-      <strong style="color:#ffe066;">Court ki mohr lagti hai — uthne ki ijazat nahi! 🔨"</strong>
+    <!-- Order Type Modal -->
+    <div id="orderTypeModal" class="fixed inset-0 bg-black/50 z-[10000] hidden" onclick="closeOrderTypes()">
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl p-4 animate-slide-up" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold">Order Type</h3>
+                <button onclick="closeOrderTypes()" class="p-2"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="space-y-2">
+                <button onclick="selectOrderType('Limit')" class="w-full text-left p-4 rounded-lg hover:bg-gray-50 flex justify-between items-center">
+                    <span>Limit</span>
+                    <i class="fas fa-check text-cyan-600" id="checkLimit"></i>
+                </button>
+                <button onclick="selectOrderType('Advanced limit')" class="w-full text-left p-4 rounded-lg hover:bg-gray-50">Advanced limit</button>
+                <button onclick="selectOrderType('Market')" class="w-full text-left p-4 rounded-lg hover:bg-gray-50">Market</button>
+                <button onclick="selectOrderType('Trigger')" class="w-full text-left p-4 rounded-lg hover:bg-gray-50">Trigger</button>
+                <button onclick="selectOrderType('Trailing stop')" class="w-full text-left p-4 rounded-lg hover:bg-gray-50">Trailing stop</button>
+                <button onclick="selectOrderType('Scaled order')" class="w-full text-left p-4 rounded-lg hover:bg-gray-50">Scaled order</button>
+                <button onclick="selectOrderType('Iceberg')" class="w-full text-left p-4 rounded-lg hover:bg-gray-50">Iceberg</button>
+                <button onclick="selectOrderType('TWAP')" class="w-full text-left p-4 rounded-lg hover:bg-gray-50">TWAP</button>
+            </div>
+        </div>
     </div>
 
-    <button class="btn-retry" onclick="retryQuestion()">😅 Okay okay… Dobara Sochti hoon!</button>
-  </div>
+    <!-- Margin Mode Modal -->
+    <div id="marginModeModal" class="fixed inset-0 bg-black/50 z-[10000] hidden" onclick="closeMarginMode()">
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl p-4 animate-slide-up" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold">Margin mode</h3>
+                <button onclick="closeMarginMode()" class="p-2"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="space-y-3">
+                <label class="flex items-start gap-3 p-4 border-2 border-cyan-500 rounded-xl cursor-pointer bg-cyan-50">
+                    <input type="radio" name="marginMode" value="cross" checked class="mt-1">
+                    <div>
+                        <p class="font-bold">Cross</p>
+                        <p class="text-xs text-gray-500 mt-1">All positions under the same margin asset share the same margin balance.</p>
+                    </div>
+                </label>
+                <label class="flex items-start gap-3 p-4 border border-gray-200 rounded-xl cursor-pointer">
+                    <input type="radio" name="marginMode" value="isolated" class="mt-1">
+                    <div>
+                        <p class="font-bold">Isolated</p>
+                        <p class="text-xs text-gray-500 mt-1">Under the isolated margin mode, a certain amount of margin is allocated to each position.</p>
+                    </div>
+                </label>
+            </div>
+            <button onclick="confirmMarginMode()" class="w-full bg-black text-white py-3 rounded-xl mt-4 font-bold">Confirm</button>
+        </div>
+    </div>
 
-  <div class="footer">Made with 💕 aur bahut himmat ke saath by SQL 💉</div>
+    <!-- Leverage Modal -->
+    <div id="leverageModal" class="fixed inset-0 bg-black/50 z-[10000] hidden" onclick="closeLeverage()">
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl p-4 animate-slide-up" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold">Adjust leverage</h3>
+                <button onclick="closeLeverage()" class="p-2"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="mb-6">
+                <div class="flex items-center justify-center gap-4 mb-4">
+                    <button onclick="adjustLev(-1)" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">-</button>
+                    <span id="leverageDisplay" class="text-2xl font-bold">10x</span>
+                    <button onclick="adjustLev(1)" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">+</button>
+                </div>
+                <input type="range" min="1" max="125" value="10" id="levSlider" class="w-full" oninput="updateLevDisplay(this.value)">
+                <div class="flex justify-between text-xs text-gray-500 mt-2">
+                    <span>1x</span>
+                    <span>30x</span>
+                    <span>60x</span>
+                    <span>125x</span>
+                </div>
+            </div>
+            <button onclick="confirmLeverage()" class="w-full bg-black text-white py-3 rounded-xl font-bold">Confirm</button>
+        </div>
+    </div>
 </div>
 
 <script>
-// Stars
-const canvas=document.getElementById('stars'),ctx=canvas.getContext('2d');
-let stars=[];
-function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
-function initStars(){stars=[];for(let i=0;i<200;i++)stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.3+0.2,a:Math.random(),spd:Math.random()*0.005+0.002});}
-function drawStars(){ctx.clearRect(0,0,canvas.width,canvas.height);stars.forEach(s=>{s.a+=s.spd;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,200,220,${0.3+0.7*Math.abs(Math.sin(s.a))})`;ctx.fill();});requestAnimationFrame(drawStars);}
-resize();initStars();drawStars();
-window.addEventListener('resize',()=>{resize();initStars();});
+let currentOrderType = 'Limit';
+let currentLeverage = 10;
+let currentMarginMode = 'cross';
 
-// Petals
-const petals=['🌸','🌹','💕','✨','💖'];
-function spawnPetal(){
-  const p=document.createElement('div');p.className='petal';
-  p.textContent=petals[Math.floor(Math.random()*petals.length)];
-  p.style.left=Math.random()*100+'vw';
-  const d=7+Math.random()*8;
-  p.style.animationDuration=d+'s';
-  p.style.animationDelay=(Math.random()*2)+'s';
-  p.style.fontSize=(0.9+Math.random()*0.8)+'rem';
-  document.body.appendChild(p);
-  setTimeout(()=>p.remove(),(d+4)*1000);
-}
-setInterval(spawnPetal,900);
-
-// Reveal on scroll
-const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible');}),{threshold:0.1});
-document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
-
-function sayYes(){
-  document.getElementById('question-card').style.display='none';
-  document.getElementById('kazi-panel').style.display='none';
-  const yp=document.getElementById('yes-panel');
-  yp.style.display='block';
-  setTimeout(()=>yp.scrollIntoView({behavior:'smooth',block:'center'}),50);
-  burstHearts();
-}
-function sayNo(){
-  document.getElementById('question-card').style.display='none';
-  document.getElementById('yes-panel').style.display='none';
-  const kp=document.getElementById('kazi-panel');
-  kp.style.display='block';
-  setTimeout(()=>kp.scrollIntoView({behavior:'smooth',block:'start'}),50);
-}
-function retryQuestion(){
-  document.getElementById('kazi-panel').style.display='none';
-  document.getElementById('yes-panel').style.display='none';
-  const qc=document.getElementById('question-card');
-  qc.style.display='block';
-  setTimeout(()=>qc.scrollIntoView({behavior:'smooth',block:'center'}),50);
+function closeModal() {
+    document.getElementById('tradeModal').style.display = 'none';
 }
 
-function burstHearts(){
-  const c=document.getElementById('hearts');
-  const ems=['💕','❤️','🌹','💖','✨','💗','🥰','💝','🎉','🥳'];
-  const s=document.createElement('style');
-  s.textContent=`@keyframes riseH{0%{opacity:1;transform:translateY(0) scale(1);}100%{opacity:0;transform:translateY(-115vh) scale(0.3) rotate(25deg);}}`;
-  document.head.appendChild(s);
-  for(let i=0;i<55;i++){
-    setTimeout(()=>{
-      const h=document.createElement('div');
-      h.style.cssText=`position:fixed;left:${Math.random()*100}vw;top:${90+Math.random()*12}vh;font-size:${1+Math.random()*1.8}rem;pointer-events:none;z-index:200;animation:riseH ${2+Math.random()*3}s ease-out forwards;`;
-      h.textContent=ems[Math.floor(Math.random()*ems.length)];
-      c.appendChild(h);setTimeout(()=>h.remove(),6000);
-    },i*60);
-  }
+function openModal() {
+    document.getElementById('tradeModal').style.display = 'flex';
+    generateOrderBook();
 }
+
+function switchTopTab(tab) {
+    document.querySelectorAll('.tab-active').forEach(el => {
+        if(el.parentElement.classList.contains('overflow-x-auto')) {
+            el.classList.remove('tab-active');
+            el.classList.add('text-gray-500');
+        }
+    });
+    event.target.classList.add('tab-active');
+    event.target.classList.remove('text-gray-500');
+}
+
+function setPositionSide(side) {
+    document.getElementById('btnOpen').className = side === 'open' ? 
+        'flex-1 py-2 rounded-md text-sm font-medium bg-white shadow-sm text-black' : 
+        'flex-1 py-2 rounded-md text-sm font-medium text-gray-500';
+    document.getElementById('btnClose').className = side === 'close' ? 
+        'flex-1 py-2 rounded-md text-sm font-medium bg-white shadow-sm text-black' : 
+        'flex-1 py-2 rounded-md text-sm font-medium text-gray-500';
+}
+
+function showOrderTypes() {
+    document.getElementById('orderTypeModal').classList.remove('hidden');
+}
+
+function closeOrderTypes() {
+    document.getElementById('orderTypeModal').classList.add('hidden');
+}
+
+function selectOrderType(type) {
+    currentOrderType = type;
+    document.getElementById('orderTypeText').textContent = type;
+    document.querySelectorAll('.fa-check').forEach(el => el.classList.add('hidden'));
+    document.getElementById('check' + type.replace(' ', '')).classList.remove('hidden');
+    closeOrderTypes();
+}
+
+function toggleBBO() {
+    const btn = document.getElementById('bboBtn');
+    btn.classList.toggle('bg-cyan-100');
+    btn.classList.toggle('border-cyan-500');
+    btn.classList.toggle('text-cyan-700');
+}
+
+function adjustPrice(delta) {
+    const input = document.getElementById('priceInput');
+    let val = parseFloat(input.value) || 0;
+    val = Math.max(0, val + delta);
+    input.value = val.toFixed(4);
+    calculateValues();
+}
+
+function updateSlider(val) {
+    document.getElementById('sliderValue').textContent = val + '%';
+    const qtyInput = document.getElementById('quantityInput');
+    // Calculate based on available balance
+    const maxQty = 1000; // Example max
+    qtyInput.value = (maxQty * val / 100).toFixed(2);
+    calculateValues();
+}
+
+function toggleTP SL() {
+    const check = document.getElementById('tpSLCheck');
+    document.getElementById('tpslInputs').classList.toggle('hidden', !check.checked);
+}
+
+function calculateValues() {
+    const price = parseFloat(document.getElementById('priceInput').value) || 0;
+    const qty = parseFloat(document.getElementById('quantityInput').value) || 0;
+    const cost = (price * qty).toFixed(2);
+    document.getElementById('buyCost').textContent = cost + ' USDT';
+    document.getElementById('sellCost').textContent = cost + ' USDT';
+}
+
+function placeOrder(side) {
+    const btn = event.currentTarget;
+    btn.style.transform = 'scale(0.95)';
+    setTimeout(() => btn.style.transform = 'scale(1)', 100);
+    
+    const price = document.getElementById('priceInput').value;
+    const qty = document.getElementById('quantityInput').value;
+    
+    if(!qty || qty <= 0) {
+        alert('Please enter quantity');
+        return;
+    }
+    
+    console.log('Order placed:', {
+        side: side,
+        type: currentOrderType,
+        pair: 'FETUSDT',
+        price: price,
+        quantity: qty,
+        leverage: currentLeverage,
+        marginMode: currentMarginMode,
+        timestamp: new Date().toISOString()
+    });
+    
+    // Here you would typically call your trading API
+    showToast(side === 'buy' ? 'Long order placed' : 'Short order placed');
+}
+
+function switchBottomTab(tab) {
+    ['positions', 'orders', 'bots', 'assets'].forEach(t => {
+        document.getElementById('content' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('hidden');
+        document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.remove('tab-active');
+        document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('text-gray-500');
+    });
+    
+    document.getElementById('content' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('hidden');
+    document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('tab-active');
+    document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('text-gray-500');
+}
+
+function generateOrderBook() {
+    const asks = document.getElementById('asksContainer');
+    const bids = document.getElementById('bidsContainer');
+    const basePrice = 0.1479;
+    
+    let asksHtml = '';
+    for(let i = 5; i > 0; i--) {
+        const price = (basePrice + i * 0.0001).toFixed(4);
+        const qty = (Math.random() * 100 + 50).toFixed(2);
+        const width = Math.random() * 80;
+        asksHtml += `
+            <div class="order-book-row text-pink-500">
+                <div class="depth-bar bg-pink-500" style="width: ${width}%"></div>
+                <span>${price}</span>
+                <span class="text-gray-600">${qty}K</span>
+            </div>
+        `;
+    }
+    
+    let bidsHtml = '';
+    for(let i = 1; i <= 5; i++) {
+        const price = (basePrice - i * 0.0001).toFixed(4);
+        const qty = (Math.random() * 100 + 50).toFixed(2);
+        const width = Math.random() * 80;
+        bidsHtml += `
+            <div class="order-book-row text-cyan-600">
+                <div class="depth-bar bg-cyan-500" style="width: ${width}%"></div>
+                <span>${price}</span>
+                <span class="text-gray-600">${qty}K</span>
+            </div>
+        `;
+    }
+    
+    asks.innerHTML = asksHtml;
+    bids.innerHTML = bidsHtml;
+}
+
+function toggleMarginMode() {
+    document.getElementById('marginModeModal').classList.remove('hidden');
+}
+
+function closeMarginMode() {
+    document.getElementById('marginModeModal').classList.add('hidden');
+}
+
+function confirmMarginMode() {
+    const selected = document.querySelector('input[name="marginMode"]:checked').value;
+    currentMarginMode = selected;
+    document.getElementById('marginModeBtn').innerHTML = 
+        selected.charAt(0).toUpperCase() + selected.slice(1) + ' <i class="fas fa-chevron-down text-xs"></i>';
+    closeMarginMode();
+}
+
+function adjustLeverage() {
+    document.getElementById('leverageModal').classList.remove('hidden');
+}
+
+function closeLeverage() {
+    document.getElementById('leverageModal').classList.add('hidden');
+}
+
+function adjustLev(delta) {
+    const display = document.getElementById('leverageDisplay');
+    let val = parseInt(display.textContent);
+    val = Math.max(1, Math.min(125, val + delta));
+    display.textContent = val + 'x';
+    document.getElementById('levSlider').value = val;
+}
+
+function updateLevDisplay(val) {
+    document.getElementById('leverageDisplay').textContent = val + 'x';
+}
+
+function confirmLeverage() {
+    currentLeverage = document.getElementById('levSlider').value;
+    document.getElementById('leverageText').textContent = currentLeverage + 'x';
+    closeLeverage();
+}
+
+function showToast(msg) {
+    const toast = document.createElement('div');
+    toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-black text-white px-6 py-3 rounded-full text-sm z-[10001] animate-fade-in';
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2000);
+}
+
+// Initialize
+window.onload = () => {
+    openModal();
+    setInterval(() => {
+        // Simulate live price updates
+        const change = (Math.random() - 0.5) * 0.0001;
+        const current = parseFloat(document.getElementById('priceInput').value) || 0.1479;
+        document.getElementById('priceInput').value = (current + change).toFixed(4);
+    }, 3000);
+};
 </script>
+
 </body>
-    </html>
+                                                                                                                   </html>

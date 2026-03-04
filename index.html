@@ -1,158 +1,391 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tanayaa... Yeh Dil Ki Baat Hai ♡</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #ff9ec1, #d7aefb, #ffccdd);
-      color: #333;
-      text-align: center;
-      overflow: hidden;
-      position: relative;
-    }
-    .container {
-      position: relative;
-      z-index: 2;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
-    h1 {
-      font-family: 'Dancing Script', cursive;
-      font-size: 5.5rem;
-      color: #fff;
-      text-shadow: 0 0 20px #ff4081, 0 0 40px #c2185b;
-      margin: 40px 0 20px;
-    }
-    .username {
-      font-size: 2rem;
-      color: #fff;
-      text-shadow: 0 0 15px #7b1fa2;
-      margin-bottom: 30px;
-    }
-    .msg {
-      font-size: 1.5rem;
-      line-height: 1.8;
-      color: #fff;
-      text-shadow: 0 0 10px rgba(0,0,0,0.3);
-      max-width: 700px;
-      margin: 0 auto 50px;
-    }
-    .question {
-      font-size: 3.2rem;
-      color: #fff;
-      text-shadow: 0 0 25px #e91e63;
-      margin: 80px 0 60px;
-      font-weight: 700;
-    }
-    .yes-btn {
-      padding: 25px 120px;
-      font-size: 2.8rem;
-      font-weight: bold;
-      background: linear-gradient(45deg, #ff4081, #f50057);
-      color: white;
-      border: none;
-      border-radius: 100px;
-      cursor: pointer;
-      box-shadow: 0 15px 40px rgba(255,64,129,0.7);
-      transition: all 0.4s ease;
-    }
-    .yes-btn:hover {
-      transform: scale(1.2) rotate(5deg);
-      box-shadow: 0 25px 60px rgba(245,0,87,0.9);
-    }
-    .hearts {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 1;
-    }
-    .heart {
-      position: absolute;
-      font-size: 50px;
-      color: rgba(255, 255, 255, 0.9);
-      text-shadow: 0 0 10px #ff4081;
-      animation: floatHeart 12s linear infinite;
-      user-select: none;
-    }
-    @keyframes floatHeart {
-      0% { transform: translateY(110vh) rotate(0deg); opacity: 0.9; }
-      100% { transform: translateY(-150px) rotate(720deg); opacity: 0; }
-    }
-    @media (max-width: 600px) {
-      h1 { font-size: 4rem; }
-      .question { font-size: 2.5rem; }
-      .yes-btn { padding: 20px 80px; font-size: 2.2rem; }
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>💌 SQL ka Dil ka Mamla</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --pink:#ff4d79;
+  --yellow:#ffe066;
+  --purple:#a259ff;
+  --bg:#0d0014;
+  --card:#1a0025;
+  --green:#00e676;
+}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  font-family:system-ui, -apple-system, "Segoe UI", sans-serif;
+  color:#fff;
+  overflow-x:hidden;
+  font-size:16px;
+  line-height:1.6;
+}
+
+/* ── STARS ── */
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* ── PETALS ── */
+.petal{position:fixed;top:-60px;font-size:1.3rem;pointer-events:none;z-index:1;animation:fall linear infinite;}
+@keyframes fall{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(400deg);opacity:0;}}
+
+/* ── WRAPPER ── */
+.wrap{position:relative;z-index:2;max-width:500px;margin:0 auto;padding:0 16px 80px;}
+
+/* ── CARDS ── */
+.card{
+  background:var(--card);
+  border-radius:20px;
+  padding:28px 20px;
+  margin:24px 0;
+  border:1.5px solid rgba(255,255,255,0.08);
+  box-shadow:0 8px 40px rgba(0,0,0,0.5);
+}
+
+/* ── HERO ── */
+.hero{text-align:center;padding:50px 16px 10px;}
+.bounce{font-size:4.5rem;display:block;animation:wobble 2s ease-in-out infinite;}
+@keyframes wobble{0%,100%{transform:rotate(-8deg);}50%{transform:rotate(8deg) scale(1.1);}}
+
+.hero h1{
+  font-size:clamp(1.6rem,6vw,2.4rem);
+  font-weight:800;
+  line-height:1.25;
+  margin-top:14px;
+  background:linear-gradient(135deg,#ff4d79,#a259ff,#ffe066);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero p{margin-top:10px;font-size:1rem;color:#b0a0c0;}
+
+/* ── GIRL AVATAR ── */
+.avatar-box{
+  width:130px;height:130px;border-radius:50%;
+  margin:20px auto;
+  background:linear-gradient(135deg,#ff9eb5,#c084fc);
+  display:flex;align-items:center;justify-content:center;
+  font-size:5rem;
+  border:3px solid var(--pink);
+  box-shadow:0 0 0 8px rgba(255,77,121,0.15),0 0 40px rgba(255,77,121,0.35);
+  animation:glow 2.5s ease-in-out infinite;
+  line-height:1;
+}
+@keyframes glow{
+  0%,100%{box-shadow:0 0 0 8px rgba(255,77,121,0.15),0 0 30px rgba(255,77,121,0.3);}
+  50%{box-shadow:0 0 0 14px rgba(255,77,121,0.2),0 0 55px rgba(255,77,121,0.55);}
+}
+
+/* ── SECTION TITLE ── */
+.sec-title{font-size:1.2rem;font-weight:800;color:var(--yellow);margin-bottom:14px;}
+
+/* ── REASON LIST ── */
+.reasons{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.reasons li{
+  background:rgba(255,255,255,0.05);
+  border-radius:14px;padding:14px 16px;
+  border-left:3px solid var(--pink);
+  font-size:0.97rem;color:#f0d0e0;
+  display:flex;align-items:flex-start;gap:10px;
+}
+.num{
+  background:var(--pink);color:white;border-radius:50%;
+  width:26px;height:26px;min-width:26px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.78rem;font-weight:700;
+}
+
+/* ── METER ── */
+.meter-label{font-size:0.9rem;color:#c0b0d0;margin-bottom:6px;margin-top:12px;}
+.meter-bar{background:rgba(255,255,255,0.08);border-radius:20px;height:20px;overflow:hidden;}
+.meter-fill{
+  height:100%;border-radius:20px;
+  background:linear-gradient(90deg,var(--pink),var(--purple));
+  position:relative;
+  animation:fillUp 1.5s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes fillUp{from{width:0%;}to{width:var(--w);}}
+.meter-fill::after{
+  content:attr(data-val);position:absolute;right:8px;top:50%;
+  transform:translateY(-50%);font-size:0.72rem;font-weight:700;color:white;
+}
+
+/* ── PROMISE ── */
+.promise-item{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:13px 0;border-bottom:1px solid rgba(255,255,255,0.06);
+  font-size:0.97rem;color:#e0c0d0;
+}
+.promise-item:last-child{border:none;}
+.pi{font-size:1.5rem;flex-shrink:0;}
+
+/* ── BIG Q ── */
+.big-q{text-align:center;}
+.ring{font-size:5rem;display:block;margin:0 auto 14px;animation:ringpop 1s ease-in-out infinite alternate;filter:drop-shadow(0 0 20px rgba(255,224,102,0.6));}
+@keyframes ringpop{from{transform:scale(1) rotate(-5deg);}to{transform:scale(1.12) rotate(5deg);}}
+.q-text{
+  font-size:clamp(1.5rem,5.5vw,2.1rem);font-weight:800;line-height:1.35;
+  background:linear-gradient(135deg,#ff4d79,#ffe066);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.q-sub{font-size:0.9rem;color:#b0a0c0;margin-top:8px;}
+
+/* ── BUTTONS ── */
+.btn-zone{display:flex;gap:12px;margin-top:22px;justify-content:center;}
+.btn-yes{
+  flex:1;padding:18px 10px;border-radius:50px;
+  font-size:1.15rem;font-weight:800;
+  background:linear-gradient(135deg,#ff4d79,#c2185b);
+  color:white;border:none;cursor:pointer;
+  box-shadow:0 8px 28px rgba(255,77,121,0.5);
+  transition:transform 0.15s;font-family:inherit;
+}
+.btn-yes:active{transform:scale(0.95);}
+.btn-yes:hover{transform:scale(1.05);}
+
+.btn-no{
+  flex:1;padding:18px 10px;border-radius:50px;
+  font-size:1rem;font-weight:700;
+  background:rgba(255,255,255,0.06);color:#c0a0b0;
+  border:1.5px solid rgba(255,255,255,0.15);
+  cursor:pointer;transition:transform 0.15s;font-family:inherit;
+}
+.btn-no:active{transform:scale(0.95);}
+
+/* ── YES PANEL ── */
+#yes-panel{display:none;text-align:center;}
+.yes-emoji{font-size:4rem;display:block;margin-bottom:10px;animation:pop 0.5s cubic-bezier(.22,1,.36,1);}
+@keyframes pop{from{transform:scale(0);}to{transform:scale(1);}}
+.yes-title{font-size:1.7rem;font-weight:800;color:var(--green);line-height:1.25;}
+.yes-msg{font-size:0.97rem;color:#b0e0c0;margin-top:12px;line-height:1.8;}
+
+/* ── KAZI PANEL ── */
+#kazi-panel{display:none;}
+.kazi-top{text-align:center;margin-bottom:18px;}
+.kazi-big{font-size:3.5rem;display:block;margin-bottom:8px;}
+.kazi-title{font-size:1.45rem;font-weight:800;color:var(--yellow);line-height:1.2;}
+.stamp-box{
+  background:rgba(255,77,121,0.12);border:2px dashed var(--pink);
+  border-radius:16px;padding:18px;margin-bottom:16px;text-align:center;
+}
+.stamp-text{
+  font-size:1.6rem;font-weight:800;color:var(--pink);letter-spacing:0.05em;
+  text-transform:uppercase;animation:blink 0.8s step-start infinite;
+}
+@keyframes blink{50%{opacity:0.3;}}
+.charges{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+.charges li{
+  background:rgba(255,255,255,0.04);border-radius:12px;
+  padding:12px 14px;font-size:0.95rem;color:#f0d0a0;
+  border-left:3px solid var(--yellow);
+}
+.verdict-box{
+  background:rgba(162,89,255,0.1);border:1px solid rgba(162,89,255,0.3);
+  border-radius:14px;padding:16px;
+  font-size:0.95rem;color:#d0b0ff;line-height:1.8;text-align:center;
+}
+.btn-retry{
+  margin-top:16px;width:100%;padding:16px;border-radius:50px;
+  font-size:1.05rem;font-weight:700;
+  background:linear-gradient(135deg,var(--purple),#6200ea);
+  color:white;border:none;cursor:pointer;font-family:inherit;
+  box-shadow:0 6px 22px rgba(162,89,255,0.4);transition:transform 0.15s;
+}
+.btn-retry:hover{transform:scale(1.03);}
+
+/* ── HEARTS ── */
+#hearts{position:fixed;inset:0;pointer-events:none;z-index:100;}
+
+.footer{text-align:center;padding:20px;font-size:0.8rem;color:#5a4060;}
+
+/* ── REVEAL ── */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity 0.65s ease,transform 0.65s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+</style>
 </head>
 <body>
 
-  <div class="hearts" id="hearts"></div>
+<canvas id="stars"></canvas>
+<div id="hearts"></div>
 
-  <div class="container">
-    <h1>Heyy Tanayaa ♡</h1>
-    <div class="username">@miss__Tanayaya__90</div>
+<div class="wrap">
 
-    <p class="msg">
-      Teri har baat, har smile dil ko chhoo jati hai... <br><br>
-      Bahut time se yeh feeling andar thi, ab mann ki baat bol deta hoon. <br>
-      Tu meri zindagi mein itni khushi laati hai ki...
-    </p>
-
-    <div class="question">Kya tu meri girlfriend banegi? 🥺❤️</div>
-
-    <button class="yes-btn" onclick="yesMagic()">YES!! 😍❤️</button>
+  <!-- HERO -->
+  <div class="hero reveal">
+    <span class="bounce">💌</span>
+    <div class="avatar-box">👩</div>
+    <h1>Tanaya ji,<br/>ek VERY zaruri baat hai! 😬</h1>
+    <p>Yeh page SQL ne bahut himmat jod ke banaya hai.<br/>Neechay scroll karte jao… 👇😅</p>
   </div>
 
-  <script>
-    // Floating cute hearts (bohot pyare animation)
-    function createHeart() {
-      const heart = document.createElement("div");
-      heart.className = "heart";
-      heart.innerHTML = Math.random() > 0.6 ? "❤️" : "💖";
-      heart.style.left = Math.random() * 100 + "vw";
-      heart.style.animationDuration = (Math.random() * 8 + 10) + "s";
-      heart.style.fontSize = (Math.random() * 40 + 30) + "px";
-      document.getElementById("hearts").appendChild(heart);
-      setTimeout(() => heart.remove(), 18000);
-    }
-    setInterval(createHeart, 300); // Har 0.3 second mein naya heart
+  <!-- WHY -->
+  <div class="card reveal">
+    <p class="sec-title">🤔 Yeh website kyun banayi?</p>
+    <ul class="reasons">
+      <li><span class="num">1</span>Seedha baat karne ki himmat nahi thi — toh website bana diya 😭💻</li>
+      <li><span class="num">2</span>WhatsApp pe "seen" karke ignore ho jaata — yahan ignore ka option nahi hai 😏</li>
+      <li><span class="num">3</span>Flowers mein allergy hai mujhe — toh digital pyaar bheja 🌸🤧</li>
+      <li><span class="num">4</span>Tumhari muskaan dekhi toh akal kaam karna band kar deti hai 🧠❌</li>
+    </ul>
+  </div>
 
-    function yesMagic() {
-      alert("Yayyyy!!! 😍❤️ Dil garden-garden ho gaya ab toh! Jaldi reply de na, bohot baatein karni hain 🥰✨");
-      
-      // Extra sparkles/confetti for fun
-      for (let i = 0; i < 100; i++) {
-        setTimeout(() => {
-          const spark = document.createElement("div");
-          spark.style.position = "fixed";
-          spark.style.width = "10px";
-          spark.style.height = "10px";
-          spark.style.background = `hsl(${Math.random()*360}, 100%, 70%)`;
-          spark.style.left = Math.random()*100 + "vw";
-          spark.style.top = "-20px";
-          spark.style.borderRadius = "50%";
-          spark.style.pointerEvents = "none";
-          spark.style.animation = "sparkFall 4s linear";
-          document.body.appendChild(spark);
-          setTimeout(() => spark.remove(), 5000);
-        }, i * 50);
-      }
-    }
-  </script>
+  <!-- METER -->
+  <div class="card reveal">
+    <p class="sec-title">📊 Dil ka Report Card (Honest wala)</p>
+    <p class="meter-label">Tumhare liye Pyaar 💕</p>
+    <div class="meter-bar"><div class="meter-fill" style="--w:98%" data-val="98%"></div></div>
+    <p class="meter-label">Tumhare bina akela pan 😢</p>
+    <div class="meter-bar"><div class="meter-fill" style="--w:100%;background:linear-gradient(90deg,#a259ff,#ff4d79)" data-val="100%"></div></div>
+    <p class="meter-label">Tumse baat karte waqt khushi ☀️</p>
+    <div class="meter-bar"><div class="meter-fill" style="--w:100%;background:linear-gradient(90deg,#ffe066,#ff9800)" data-val="100%"></div></div>
+    <p class="meter-label">Tumhare saamne meri himmat 😅</p>
+    <div class="meter-bar"><div class="meter-fill" style="--w:8%;background:linear-gradient(90deg,#00e676,#00bcd4)" data-val="8% 😂"></div></div>
+    <p class="meter-label">Teri yaad aane ka rate 🥺</p>
+    <div class="meter-bar"><div class="meter-fill" style="--w:100%;background:linear-gradient(90deg,#ff6ec7,#a259ff)" data-val="24/7"></div></div>
+  </div>
 
-  <style>
-    @keyframes sparkFall {
-      to { transform: translateY(120vh) rotate(1080deg); opacity: 0; }
-    }
-  </style>
+  <!-- PROMISES -->
+  <div class="card reveal">
+    <p class="sec-title">📜 Meri Official Promises 🤝</p>
+    <div class="promise-item"><span class="pi">😂</span><span>Roz ek naya meme bhejunga — hasna compulsory hai, warna penalty lagegi</span></div>
+    <div class="promise-item"><span class="pi">🍕</span><span>Khana tum choose karo, bill main dunga… tab tak jab wallet rota na ho 😅</span></div>
+    <div class="promise-item"><span class="pi">🎵</span><span>Tumhare gane bajaunga — apne wale nahi. Yeh meri sabse badi qurbani hai 😤</span></div>
+    <div class="promise-item"><span class="pi">📱</span><span>Tumhara message aate hi reply — sirf 0.001 second mein… ya phir jab neend na aa rahi ho 😬</span></div>
+    <div class="promise-item"><span class="pi">🧠</span><span>Sab jawab Google pe dhundunga — yeh keh ke nahi bolunga ki "mujhe sab pata hai" 😌</span></div>
+    <div class="promise-item"><span class="pi">❤️</span><span>Sachha pyaar doonga — yeh wala promise serious hai, baaki sab comedy thi 🥺</span></div>
+  </div>
 
+  <!-- QUESTION -->
+  <div class="card reveal big-q" id="question-card">
+    <span class="ring">💍</span>
+    <p class="q-text">Toh Tanaya ji…<br/>Kya aap SQL ki<br/>ban jaengi? 🥺😅</p>
+    <p class="q-sub">⚠️ Sochna mat — seedha dil ki suno!</p>
+    <div class="btn-zone">
+      <button class="btn-yes" onclick="sayYes()">💕 Haan ji!</button>
+      <button class="btn-no" onclick="sayNo()">😐 Nahi…</button>
+    </div>
+  </div>
+
+  <!-- YES -->
+  <div class="card" id="yes-panel">
+    <span class="yes-emoji">🥳🎉💖</span>
+    <p class="yes-title">BHAI SUNAAA?!<br/>TANAYA NE HAAN BOL DIYA!! 🎊</p>
+    <p class="yes-msg">
+      SQL bhai ab rona band karo! 😭➡️😍<br/><br/>
+      🌹 Tumhari kahani shuru hoti hai aaj se…<br/>
+      😂 Milke khub hanso<br/>
+      🍕 Milke khub khao<br/>
+      💕 Aur khub pyaar karo!<br/><br/>
+      <strong style="color:#ffe066;font-size:1.1rem;">SQL 💉 + Tanaya 🌹 = 💑 Forever ∞</strong>
+    </p>
+  </div>
+
+  <!-- KAZI -->
+  <div class="card" id="kazi-panel">
+    <div class="kazi-top">
+      <span class="kazi-big">⚖️👨‍⚖️</span>
+      <p class="kazi-title">🔴 KAZI KI ADALAT MEIN<br/>HAZIR HO TANAYA JI! 🔴</p>
+      <p style="font-size:0.85rem;color:#b0a0c0;margin-top:6px;">Case No. 786/SQL — "Dil Todhna Maamla"</p>
+    </div>
+
+    <div class="stamp-box">
+      <p class="stamp-text">🔨 FAISLA SUNAO KAZI SAHAB!</p>
+    </div>
+
+    <p style="font-size:0.9rem;color:#c0b0a0;margin-bottom:12px;">
+      👨‍⚖️ <strong style="color:#ffe066;">Mulzim:</strong> Tanaya ji<br/>
+      📋 <strong style="color:#ffe066;">Jurm:</strong> Ek pyaare bande ka dil todna
+    </p>
+
+    <ul class="charges">
+      <li>🔴 Charge 1: Itni cute hoke "Nahi" kehna — yeh toh IPC section 302 pyaar ka hai!</li>
+      <li>🟡 Charge 2: SQL ne raat raat jaag ke website banayi — aur aapne "Nahi" bol diya?! Sharam!</li>
+      <li>🟠 Charge 3: Andar se "Haan" kehna chahti thi — court ko pata hai 👀</li>
+      <li>🟣 Charge 4: SQL ab roz sad memes bhejega — yeh crime ka natija hoga!</li>
+    </ul>
+
+    <div class="verdict-box">
+      👨‍⚖️ <strong>Kazi ka Faisla:</strong><br/><br/>
+      "Tanaya ji ko hukum diya jaata hai ki woh<br/>
+      DOBARA sochen aur sahi jawab dein!<br/><br/>
+      Warna SQL 365 din, 24 ghante<br/>
+      <em>🎵 Tum hi ho… tum hi ho…</em> bhejta rahega!<br/><br/>
+      <strong style="color:#ffe066;">Court ki mohr lagti hai — uthne ki ijazat nahi! 🔨"</strong>
+    </div>
+
+    <button class="btn-retry" onclick="retryQuestion()">😅 Okay okay… Dobara Sochti hoon!</button>
+  </div>
+
+  <div class="footer">Made with 💕 aur bahut himmat ke saath by SQL 💉</div>
+</div>
+
+<script>
+// Stars
+const canvas=document.getElementById('stars'),ctx=canvas.getContext('2d');
+let stars=[];
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+function initStars(){stars=[];for(let i=0;i<200;i++)stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.3+0.2,a:Math.random(),spd:Math.random()*0.005+0.002});}
+function drawStars(){ctx.clearRect(0,0,canvas.width,canvas.height);stars.forEach(s=>{s.a+=s.spd;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,200,220,${0.3+0.7*Math.abs(Math.sin(s.a))})`;ctx.fill();});requestAnimationFrame(drawStars);}
+resize();initStars();drawStars();
+window.addEventListener('resize',()=>{resize();initStars();});
+
+// Petals
+const petals=['🌸','🌹','💕','✨','💖'];
+function spawnPetal(){
+  const p=document.createElement('div');p.className='petal';
+  p.textContent=petals[Math.floor(Math.random()*petals.length)];
+  p.style.left=Math.random()*100+'vw';
+  const d=7+Math.random()*8;
+  p.style.animationDuration=d+'s';
+  p.style.animationDelay=(Math.random()*2)+'s';
+  p.style.fontSize=(0.9+Math.random()*0.8)+'rem';
+  document.body.appendChild(p);
+  setTimeout(()=>p.remove(),(d+4)*1000);
+}
+setInterval(spawnPetal,900);
+
+// Reveal on scroll
+const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible');}),{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+function sayYes(){
+  document.getElementById('question-card').style.display='none';
+  document.getElementById('kazi-panel').style.display='none';
+  const yp=document.getElementById('yes-panel');
+  yp.style.display='block';
+  setTimeout(()=>yp.scrollIntoView({behavior:'smooth',block:'center'}),50);
+  burstHearts();
+}
+function sayNo(){
+  document.getElementById('question-card').style.display='none';
+  document.getElementById('yes-panel').style.display='none';
+  const kp=document.getElementById('kazi-panel');
+  kp.style.display='block';
+  setTimeout(()=>kp.scrollIntoView({behavior:'smooth',block:'start'}),50);
+}
+function retryQuestion(){
+  document.getElementById('kazi-panel').style.display='none';
+  document.getElementById('yes-panel').style.display='none';
+  const qc=document.getElementById('question-card');
+  qc.style.display='block';
+  setTimeout(()=>qc.scrollIntoView({behavior:'smooth',block:'center'}),50);
+}
+
+function burstHearts(){
+  const c=document.getElementById('hearts');
+  const ems=['💕','❤️','🌹','💖','✨','💗','🥰','💝','🎉','🥳'];
+  const s=document.createElement('style');
+  s.textContent=`@keyframes riseH{0%{opacity:1;transform:translateY(0) scale(1);}100%{opacity:0;transform:translateY(-115vh) scale(0.3) rotate(25deg);}}`;
+  document.head.appendChild(s);
+  for(let i=0;i<55;i++){
+    setTimeout(()=>{
+      const h=document.createElement('div');
+      h.style.cssText=`position:fixed;left:${Math.random()*100}vw;top:${90+Math.random()*12}vh;font-size:${1+Math.random()*1.8}rem;pointer-events:none;z-index:200;animation:riseH ${2+Math.random()*3}s ease-out forwards;`;
+      h.textContent=ems[Math.floor(Math.random()*ems.length)];
+      c.appendChild(h);setTimeout(()=>h.remove(),6000);
+    },i*60);
+  }
+}
+</script>
 </body>
-</html>
+    </html>

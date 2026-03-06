@@ -1,0 +1,2375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Admin Panel - Trending Store</title>
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#00c853',
+                        secondary: '#ffd600',
+                        danger: '#ff3d00',
+                        gold: '#ffd700',
+                        bgDeep: '#0b0e11',
+                        surface: '#151a21',
+                        surfaceLight: '#1e2329',
+                        border: '#2b3139',
+                        textGray: '#848e9c',
+                        trade: '#00c853',
+                        tradeRed: '#ff3d00',
+                        amber: '#ff9800',
+                        emerald: '#00c853',
+                        rose: '#ff3d00',
+                        purple: '#9c27b0',
+                        blue: '#2196f3'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #0b0e11; color: #eaecef; font-family: 'Inter', sans-serif; overflow-x: hidden; font-size: 14px; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #0b0e11; }
+        ::-webkit-scrollbar-thumb { background: #2b3139; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00c853; }
+        
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes buttonClick { 0% { transform: scale(1); } 50% { transform: scale(0.95); } 100% { transform: scale(1); } }
+        
+        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+        .animate-slide-in { animation: slideIn 0.3s ease-out; }
+        .animate-slide-out { animation: slideOut 0.3s ease-out; }
+        .btn-animated { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
+        .btn-animated:active { transform: scale(0.95); }
+        .btn-clicked { animation: buttonClick 0.3s ease; }
+        
+        .glass { background: rgba(21, 26, 33, 0.95); backdrop-filter: blur(20px); border: 1px solid #2b3139; }
+        
+        .mobile-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #151a21; border-top: 1px solid #2b3139; display: flex; justify-content: space-around; padding: 8px 0; z-index: 100; }
+        .mobile-nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #848e9c; font-size: 10px; transition: all 0.2s; padding: 4px 8px; border-radius: 8px; }
+        .mobile-nav-item.active { color: #00c853; background: rgba(0, 200, 83, 0.1); }
+        .mobile-nav-item:active { transform: scale(0.9); }
+        
+        .slide-panel { position: fixed; top: 0; right: -100%; width: 100%; height: 100vh; background: #0b0e11; z-index: 1000; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow-y: auto; }
+        .slide-panel.open { right: 0; }
+        .slide-panel-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 999; opacity: 0; visibility: hidden; transition: all 0.3s; }
+        .slide-panel-overlay.open { opacity: 1; visibility: visible; }
+        
+        .card-pending { background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); }
+        .card-approved { background: linear-gradient(135deg, #00c853 0%, #00a844 100%); }
+        .card-rejected { background: linear-gradient(135deg, #ff3d00 0%, #d32f2f 100%); }
+        .card-usdt { background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%); }
+        .card-info { background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); }
+        .card-default { background: linear-gradient(145deg, #151a21, #1e2329); }
+        
+        .badge-pending { background: linear-gradient(135deg, #ff9800, #f57c00); }
+        .badge-approved { background: linear-gradient(135deg, #00c853, #00a844); }
+        .badge-rejected { background: linear-gradient(135deg, #ff3d00, #d32f2f); }
+        .badge-verified { background: linear-gradient(135deg, #00c853, #00a844); }
+        
+        .input-trade { background: #0b0e11; border: 1px solid #2b3139; color: #eaecef; padding: 12px 16px; border-radius: 8px; width: 100%; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+        .input-trade:focus { outline: none; border-color: #00c853; }
+        .input-trade:disabled { background: #1e2329; color: #848e9c; cursor: not-allowed; }
+        
+        .loader { width: 40px; height: 40px; border: 3px solid #2b3139; border-top-color: #00c853; border-radius: 50%; animation: spin 1s linear infinite; }
+        .loader-small { width: 20px; height: 20px; border: 2px solid #2b3139; border-top-color: #00c853; border-radius: 50%; animation: spin 1s linear infinite; display: inline-block; }
+        
+        .toast { position: fixed; top: 20px; right: 20px; background: #151a21; border: 1px solid #00c853; color: #00c853; padding: 12px 20px; border-radius: 8px; z-index: 10000; transform: translateX(400px); transition: transform 0.3s ease; }
+        .toast.show { transform: translateX(0); }
+        .toast.error { border-color: #ff3d00; color: #ff3d00; }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .sticky-header { position: sticky; top: 0; background: #0b0e11; z-index: 50; border-bottom: 1px solid #2b3139; }
+        
+        .user-card { background: linear-gradient(145deg, #151a21, #1e2329); border: 1px solid #2b3139; border-radius: 16px; padding: 16px; margin-bottom: 12px; transition: all 0.3s; }
+        .user-card:hover { border-color: #00c853; transform: translateY(-2px); }
+        
+        .action-btn { padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 12px; transition: all 0.2s; }
+        .action-btn-approve { background: linear-gradient(135deg, #00c853, #00a844); color: #000; }
+        .action-btn-reject { background: linear-gradient(135deg, #ff3d00, #d32f2f); color: #fff; }
+        
+        .bottom-sheet { position: fixed; bottom: -100%; left: 0; right: 0; background: #151a21; border-radius: 20px 20px 0 0; z-index: 1001; transition: bottom 0.3s ease; max-height: 80vh; overflow-y: auto; }
+        .bottom-sheet.open { bottom: 0; }
+        .bottom-sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s; }
+        .bottom-sheet-overlay.open { opacity: 1; visibility: visible; }
+        
+        .search-bar { background: #1e2329; border: 1px solid #2b3139; border-radius: 12px; padding: 12px 16px 12px 44px; color: #eaecef; width: 100%; font-size: 14px; }
+        .search-bar:focus { outline: none; border-color: #00c853; }
+        
+        .filter-chip { padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 500; white-space: nowrap; transition: all 0.2s; cursor: pointer; }
+        .filter-chip.active { background: #00c853; color: #000; }
+        .filter-chip:not(.active) { background: #1e2329; color: #848e9c; border: 1px solid #2b3139; }
+        
+        .stats-card { background: linear-gradient(145deg, #151a21, #1e2329); border: 1px solid #2b3139; border-radius: 16px; padding: 20px; }
+        
+        .editable-field { display: flex; align-items: center; gap: 8px; padding: 12px; background: #0b0e11; border: 1px solid #2b3139; border-radius: 8px; }
+        .editable-field input { background: transparent; border: none; color: #eaecef; font-weight: 600; width: 100%; outline: none; }
+        
+        @media (max-width: 768px) { .desktop-only { display: none !important; } .main-content { padding-bottom: 80px; } }
+        @media (min-width: 769px) { 
+            .mobile-only { display: none !important; } 
+            .slide-panel { width: 480px; right: -480px; }
+            .mobile-nav { display: none !important; }
+            .main-content { padding-left: 280px; }
+        }
+        
+        .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 280px; background: #151a21; border-right: 1px solid #2b3139; z-index: 100; overflow-y: auto; }
+        .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 14px 20px; color: #848e9c; transition: all 0.2s; cursor: pointer; }
+        .sidebar-item:hover, .sidebar-item.active { background: rgba(0, 200, 83, 0.1); color: #00c853; }
+        .sidebar-item.active { border-right: 3px solid #00c853; }
+        
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: #151a21; border: 1px solid #2b3139; border-radius: 20px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        
+        .img-zoom { cursor: zoom-in; transition: transform 0.3s; }
+        .img-zoom.zoomed { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(2); z-index: 10001; cursor: zoom-out; }
+        
+        .notif-badge { position: absolute; top: -4px; right: -4px; background: #ff3d00; color: white; font-size: 9px; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        
+        .toggle-switch { width: 48px; height: 24px; background: #2b3139; border-radius: 12px; position: relative; cursor: pointer; transition: background 0.3s; }
+        .toggle-switch.active { background: #00c853; }
+        .toggle-switch::after { content: ''; position: absolute; width: 20px; height: 20px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: transform 0.3s; }
+        .toggle-switch.active::after { transform: translateX(24px); }
+        
+        .offline-bar { background: #ffd600; color: #000; padding: 8px; text-align: center; font-size: 12px; font-weight: 600; display: none; }
+        .offline-bar.show { display: block; }
+    </style>
+</head>
+<body>
+    <!-- Offline Indicator -->
+    <div id="offline-bar" class="offline-bar">
+        <i class="fas fa-wifi-slash mr-2"></i>You are offline. Changes will sync when online.
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loader" class="fixed inset-0 bg-bgDeep z-[10001] flex flex-col items-center justify-center">
+        <div class="loader mb-4"></div>
+        <h2 class="text-primary font-bold text-lg">Admin Panel</h2>
+        <p class="text-textGray text-xs mt-2">Loading...</p>
+    </div>
+
+    <!-- Desktop Sidebar -->
+    <aside class="sidebar desktop-only">
+        <div class="p-6 border-b border-border">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                    <i class="fas fa-shield-alt text-black"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg">Admin Panel</h1>
+                    <p class="text-textGray text-xs">Trending Store</p>
+                </div>
+            </div>
+        </div>
+        <nav class="p-4 space-y-1">
+            <div class="sidebar-item active" onclick="navigateTo('dashboard')">
+                <i class="fas fa-home w-5"></i><span>Dashboard</span>
+            </div>
+            <div class="sidebar-item" onclick="navigateTo('payments')">
+                <i class="fas fa-money-bill-wave w-5"></i><span>Payments</span>
+                <span id="sidebar-pending-count" class="notif-badge static ml-auto hidden">0</span>
+            </div>
+            <div class="sidebar-item" onclick="navigateTo('users')">
+                <i class="fas fa-users w-5"></i><span>Users</span>
+            </div>
+            <div class="sidebar-item" onclick="navigateTo('trading')">
+                <i class="fas fa-chart-line w-5"></i><span>Trading</span>
+            </div>
+            <div class="sidebar-item" onclick="navigateTo('kyc')">
+                <i class="fas fa-id-card w-5"></i><span>KYC Verification</span>
+                <span id="sidebar-kyc-count" class="notif-badge static ml-auto hidden">0</span>
+            </div>
+            <div class="sidebar-item" onclick="navigateTo('nft')">
+                <i class="fas fa-image w-5"></i><span>NFT Management</span>
+            </div>
+            <div class="sidebar-item" onclick="navigateTo('investment')">
+                <i class="fas fa-chart-pie w-5"></i><span>Investment Plans</span>
+            </div>
+            <div class="sidebar-item" onclick="navigateTo('reports')">
+                <i class="fas fa-exclamation-triangle w-5"></i><span>Reports</span>
+            </div>
+            <div class="sidebar-item" onclick="navigateTo('notifications')">
+                <i class="fas fa-bell w-5"></i><span>Notifications</span>
+            </div>
+            <div class="sidebar-item" onclick="navigateTo('settings')">
+                <i class="fas fa-cog w-5"></i><span>Settings</span>
+            </div>
+            <div class="sidebar-item" onclick="navigateTo('logs')">
+                <i class="fas fa-history w-5"></i><span>Admin Logs</span>
+            </div>
+        </nav>
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-border bg-[#151a21]">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user text-primary"></i>
+                </div>
+                <div>
+                    <p class="font-semibold text-sm">Super Admin</p>
+                    <p class="text-textGray text-xs">Direct Access</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main App Container -->
+    <div id="app-container" class="hidden min-h-screen">
+        <!-- Mobile Header -->
+        <header class="sticky top-0 z-50 glass border-b border-border mobile-only">
+            <div class="flex items-center justify-between px-4 py-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-primary rounded flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-black"></i>
+                    </div>
+                    <span id="header-title" class="font-bold text-lg">Dashboard</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="openNotificationsPanel()" class="btn-animated w-10 h-10 rounded-lg bg-surfaceLight flex items-center justify-center relative">
+                        <i class="fas fa-bell text-lg"></i>
+                        <span id="header-notif-badge" class="notif-badge hidden">0</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- DASHBOARD VIEW -->
+            <div id="view-dashboard" class="view-section animate-fade-in">
+                <div class="p-4">
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-2 gap-3 mb-6">
+                        <div class="stats-card">
+                            <p class="text-textGray text-xs mb-1">Total Users</p>
+                            <h2 id="stat-total-users" class="text-xl font-bold font-mono">0</h2>
+                            <p class="text-primary text-xs mt-1"><i class="fas fa-arrow-up mr-1"></i><span id="stat-new-users-today">0</span> today</p>
+                        </div>
+                        <div class="stats-card">
+                            <p class="text-textGray text-xs mb-1">Total Balance</p>
+                            <h2 id="stat-total-balance" class="text-xl font-bold font-mono text-primary">₹0</h2>
+                            <p class="text-textGray text-xs mt-1">All users combined</p>
+                        </div>
+                        <div class="stats-card">
+                            <p class="text-textGray text-xs mb-1">Pending Deposits</p>
+                            <h2 id="stat-pending-deposits" class="text-xl font-bold font-mono text-amber">0</h2>
+                            <p class="text-textGray text-xs mt-1">₹<span id="stat-pending-deposit-amount">0</span></p>
+                        </div>
+                        <div class="stats-card">
+                            <p class="text-textGray text-xs mb-1">Pending Withdrawals</p>
+                            <h2 id="stat-pending-withdrawals" class="text-xl font-bold font-mono text-danger">0</h2>
+                            <p class="text-textGray text-xs mt-1">₹<span id="stat-pending-withdrawal-amount">0</span></p>
+                        </div>
+                    </div>
+
+                    <!-- Today's Summary -->
+                    <div class="glass rounded-xl p-4 mb-6">
+                        <h3 class="font-bold mb-4">Today's Summary</h3>
+                        <div class="grid grid-cols-3 gap-4 text-center">
+                            <div>
+                                <p class="text-textGray text-xs mb-1">Deposits</p>
+                                <p id="today-deposits" class="font-bold text-primary">₹0</p>
+                            </div>
+                            <div>
+                                <p class="text-textGray text-xs mb-1">Withdrawals</p>
+                                <p id="today-withdrawals" class="font-bold text-danger">₹0</p>
+                            </div>
+                            <div>
+                                <p class="text-textGray text-xs mb-1">Trading Vol</p>
+                                <p id="today-trading" class="font-bold text-secondary">₹0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <h3 class="font-bold mb-3">Quick Actions</h3>
+                    <div class="grid grid-cols-4 gap-3 mb-6">
+                        <button onclick="navigateTo('payments')" class="flex flex-col items-center gap-2 p-3 bg-surface rounded-xl">
+                            <div class="w-12 h-12 bg-amber/20 rounded-full flex items-center justify-center">
+                                <i class="fas fa-money-bill-wave text-amber"></i>
+                            </div>
+                            <span class="text-xs">Payments</span>
+                        </button>
+                        <button onclick="navigateTo('users')" class="flex flex-col items-center gap-2 p-3 bg-surface rounded-xl">
+                            <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+                                <i class="fas fa-users text-primary"></i>
+                            </div>
+                            <span class="text-xs">Users</span>
+                        </button>
+                        <button onclick="navigateTo('kyc')" class="flex flex-col items-center gap-2 p-3 bg-surface rounded-xl">
+                            <div class="w-12 h-12 bg-blue/20 rounded-full flex items-center justify-center">
+                                <i class="fas fa-id-card text-blue"></i>
+                            </div>
+                            <span class="text-xs">KYC</span>
+                        </button>
+                        <button onclick="navigateTo('notifications')" class="flex flex-col items-center gap-2 p-3 bg-surface rounded-xl">
+                            <div class="w-12 h-12 bg-purple/20 rounded-full flex items-center justify-center">
+                                <i class="fas fa-bell text-purple"></i>
+                            </div>
+                            <span class="text-xs">Notify</span>
+                        </button>
+                    </div>
+
+                    <!-- Recent Activity Chart -->
+                    <div class="glass rounded-xl p-4 mb-6">
+                        <h3 class="font-bold mb-4">Weekly Activity</h3>
+                        <canvas id="activityChart" height="200"></canvas>
+                    </div>
+
+                    <!-- Recent Transactions -->
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-bold">Recent Transactions</h3>
+                        <button onclick="navigateTo('payments')" class="text-primary text-sm">View All</button>
+                    </div>
+                    <div id="dashboard-recent-transactions" class="space-y-2">
+                        <p class="text-textGray text-center py-8">No recent transactions</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAYMENTS VIEW -->
+            <div id="view-payments" class="view-section hidden animate-fade-in">
+                <div class="sticky-header">
+                    <div class="flex border-b border-border">
+                        <button onclick="switchPaymentTab('deposits')" class="payment-nav-item flex-1 py-3 text-sm font-medium text-center border-b-2 border-primary text-white" data-tab="deposits">Deposits</button>
+                        <button onclick="switchPaymentTab('withdrawals')" class="payment-nav-item flex-1 py-3 text-sm font-medium text-center border-b-2 border-transparent text-textGray" data-tab="withdrawals">Withdrawals</button>
+                        <button onclick="switchPaymentTab('transfers')" class="payment-nav-item flex-1 py-3 text-sm font-medium text-center border-b-2 border-transparent text-textGray" data-tab="transfers">Transfers</button>
+                    </div>
+                    <div class="p-3 border-b border-border">
+                        <div class="flex gap-2 overflow-x-auto no-scrollbar" id="payment-status-filters">
+                            <button onclick="filterPaymentStatus('all')" class="filter-chip active" data-status="all">All</button>
+                            <button onclick="filterPaymentStatus('pending')" class="filter-chip" data-status="pending">Pending</button>
+                            <button onclick="filterPaymentStatus('approved')" class="filter-chip" data-status="approved">Approved</button>
+                            <button onclick="filterPaymentStatus('rejected')" class="filter-chip" data-status="rejected">Rejected</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-3 border-b border-border">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-textGray"></i>
+                        <input type="text" id="payment-search" class="search-bar" placeholder="Search by name, phone, or UTR..." oninput="searchPayments()">
+                    </div>
+                </div>
+                <div id="payment-deposits" class="tab-content active p-3">
+                    <div id="deposits-list" class="space-y-3">
+                        <div class="text-center py-8">
+                            <div class="loader mx-auto mb-4"></div>
+                            <p class="text-textGray">Loading deposits...</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="payment-withdrawals" class="tab-content p-3">
+                    <div id="withdrawals-list" class="space-y-3">
+                        <div class="text-center py-8">
+                            <div class="loader mx-auto mb-4"></div>
+                            <p class="text-textGray">Loading withdrawals...</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="payment-transfers" class="tab-content p-3">
+                    <div id="transfers-list" class="space-y-3">
+                        <p class="text-textGray text-center py-8">Transfers coming soon</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- USERS VIEW -->
+            <div id="view-users" class="view-section hidden animate-fade-in">
+                <div class="sticky-header">
+                    <div class="p-3 border-b border-border">
+                        <div class="relative mb-3">
+                            <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-textGray"></i>
+                            <input type="text" id="users-search" class="search-bar" placeholder="Search by name, phone, email..." oninput="searchUsers()">
+                        </div>
+                        <div class="flex gap-2 overflow-x-auto no-scrollbar">
+                            <button onclick="filterUsers('all')" class="filter-chip active" data-filter="all">All</button>
+                            <button onclick="filterUsers('verified')" class="filter-chip" data-filter="verified">Verified</button>
+                            <button onclick="filterUsers('pending')" class="filter-chip" data-filter="pending">Pending KYC</button>
+                            <button onclick="filterUsers('high-balance')" class="filter-chip" data-filter="high-balance">High Balance</button>
+                            <button onclick="filterUsers('new')" class="filter-chip" data-filter="new">New Today</button>
+                            <button onclick="filterUsers('blocked')" class="filter-chip" data-filter="blocked">Blocked</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-3">
+                    <div id="users-list" class="space-y-3">
+                        <div class="text-center py-8">
+                            <div class="loader mx-auto mb-4"></div>
+                            <p class="text-textGray">Loading users...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TRADING VIEW -->
+            <div id="view-trading" class="view-section hidden animate-fade-in">
+                <div class="sticky-header">
+                    <div class="flex border-b border-border">
+                        <button onclick="switchTradingTab('orders')" class="trading-nav-item flex-1 py-3 text-sm font-medium text-center border-b-2 border-primary text-white" data-tab="orders">Open Orders</button>
+                        <button onclick="switchTradingTab('history')" class="trading-nav-item flex-1 py-3 text-sm font-medium text-center border-b-2 border-transparent text-textGray" data-tab="history">Order History</button>
+                        <button onclick="switchTradingTab('positions')" class="trading-nav-item flex-1 py-3 text-sm font-medium text-center border-b-2 border-transparent text-textGray" data-tab="positions">Positions</button>
+                    </div>
+                </div>
+                <div id="trading-orders" class="tab-content active p-3">
+                    <div id="open-orders-list" class="space-y-3">
+                        <p class="text-textGray text-center py-8">No open orders</p>
+                    </div>
+                </div>
+                <div id="trading-history" class="tab-content p-3">
+                    <div id="order-history-list" class="space-y-3">
+                        <p class="text-textGray text-center py-8">No order history</p>
+                    </div>
+                </div>
+                <div id="trading-positions" class="tab-content p-3">
+                    <div id="positions-list" class="space-y-3">
+                        <p class="text-textGray text-center py-8">No active positions</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KYC VIEW -->
+            <div id="view-kyc" class="view-section hidden animate-fade-in">
+                <div class="sticky-header">
+                    <div class="p-3 border-b border-border">
+                        <div class="flex gap-2 overflow-x-auto no-scrollbar">
+                            <button onclick="filterKYC('pending')" class="filter-chip active" data-kyc="pending">Pending</button>
+                            <button onclick="filterKYC('verified')" class="filter-chip" data-kyc="verified">Verified</button>
+                            <button onclick="filterKYC('rejected')" class="filter-chip" data-kyc="rejected">Rejected</button>
+                            <button onclick="filterKYC('all')" class="filter-chip" data-kyc="all">All</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-3">
+                    <div id="kyc-list" class="space-y-3">
+                        <div class="text-center py-8">
+                            <div class="loader mx-auto mb-4"></div>
+                            <p class="text-textGray">Loading KYC requests...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NFT MANAGEMENT VIEW -->
+            <div id="view-nft" class="view-section hidden animate-fade-in">
+                <div class="p-3 border-b border-border">
+                    <button onclick="openAddNFTModal()" class="btn-animated w-full bg-primary text-black font-bold py-3 rounded-lg">
+                        <i class="fas fa-plus mr-2"></i>Add New NFT
+                    </button>
+                </div>
+                <div class="p-3">
+                    <div id="nft-grid" class="grid grid-cols-2 gap-3">
+                        <div class="text-center py-8 col-span-2">
+                            <div class="loader mx-auto mb-4"></div>
+                            <p class="text-textGray">Loading NFTs...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INVESTMENT PLANS VIEW -->
+            <div id="view-investment" class="view-section hidden animate-fade-in">
+                <div class="p-3 border-b border-border">
+                    <button onclick="openAddPlanModal()" class="btn-animated w-full bg-primary text-black font-bold py-3 rounded-lg">
+                        <i class="fas fa-plus mr-2"></i>Create New Plan
+                    </button>
+                </div>
+                <div class="p-3">
+                    <div id="plans-list" class="space-y-3">
+                        <div class="text-center py-8">
+                            <div class="loader mx-auto mb-4"></div>
+                            <p class="text-textGray">Loading investment plans...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- REPORTS VIEW -->
+            <div id="view-reports" class="view-section hidden animate-fade-in">
+                <div class="sticky-header">
+                    <div class="p-3 border-b border-border">
+                        <div class="flex gap-2 overflow-x-auto no-scrollbar">
+                            <button onclick="filterReports('open')" class="filter-chip active" data-report="open">Open</button>
+                            <button onclick="filterReports('resolved')" class="filter-chip" data-report="resolved">Resolved</button>
+                            <button onclick="filterReports('all')" class="filter-chip" data-report="all">All</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-3">
+                    <div id="reports-list" class="space-y-3">
+                        <div class="text-center py-8">
+                            <div class="loader mx-auto mb-4"></div>
+                            <p class="text-textGray">Loading reports...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOTIFICATIONS VIEW -->
+            <div id="view-notifications" class="view-section hidden animate-fade-in">
+                <div class="p-4">
+                    <div class="glass rounded-xl p-4 mb-6">
+                        <h3 class="font-bold mb-4">Send Notification</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-textGray text-xs mb-2 block">Send To</label>
+                                <select id="notif-target" class="input-trade" onchange="toggleUserIdField()">
+                                    <option value="all">All Users</option>
+                                    <option value="specific">Specific User</option>
+                                </select>
+                            </div>
+                            <div id="notif-user-id-container" class="hidden">
+                                <label class="text-textGray text-xs mb-2 block">User ID</label>
+                                <input type="text" id="notif-user-id" class="input-trade" placeholder="Enter user ID">
+                            </div>
+                            <div>
+                                <label class="text-textGray text-xs mb-2 block">Title</label>
+                                <input type="text" id="notif-title" class="input-trade" placeholder="Notification title">
+                            </div>
+                            <div>
+                                <label class="text-textGray text-xs mb-2 block">Message</label>
+                                <textarea id="notif-message" rows="3" class="input-trade" placeholder="Enter message..."></textarea>
+                            </div>
+                            <button onclick="sendNotification()" class="btn-animated w-full bg-primary text-black font-bold py-3 rounded-lg">
+                                <i class="fas fa-paper-plane mr-2"></i>Send Notification
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="font-bold mb-3">Sent History</h3>
+                    <div id="notification-history" class="space-y-2">
+                        <p class="text-textGray text-center py-4">No notifications sent yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SETTINGS VIEW -->
+            <div id="view-settings" class="view-section hidden animate-fade-in">
+                <div class="p-4 space-y-4">
+                    <div class="glass rounded-xl p-4">
+                        <h3 class="font-bold mb-4"><i class="fas fa-money-bill-wave mr-2 text-primary"></i>Payment Settings</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-textGray text-xs mb-2 block">UPI ID for Deposits</label>
+                                <input type="text" id="setting-upi" class="input-trade" placeholder="name@upi">
+                            </div>
+                            <div>
+                                <label class="text-textGray text-xs mb-2 block">USDT Wallet Address (BEP20)</label>
+                                <input type="text" id="setting-usdt" class="input-trade" placeholder="0x...">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-textGray text-xs mb-2 block">Min Deposit</label>
+                                    <input type="number" id="setting-min-deposit" class="input-trade" placeholder="500">
+                                </div>
+                                <div>
+                                    <label class="text-textGray text-xs mb-2 block">Max Withdrawal</label>
+                                    <input type="number" id="setting-max-withdrawal" class="input-trade" placeholder="100000">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-textGray text-xs mb-2 block">Withdrawal Fee (%)</label>
+                                <input type="number" id="setting-withdrawal-fee" class="input-trade" placeholder="0" step="0.1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass rounded-xl p-4">
+                        <h3 class="font-bold mb-4"><i class="fas fa-address-book mr-2 text-blue"></i>Contact Info</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-textGray text-xs mb-2 block">Support Email</label>
+                                <input type="email" id="setting-email" class="input-trade" placeholder="support@example.com">
+                            </div>
+                            <div>
+                                <label class="text-textGray text-xs mb-2 block">Support Phone</label>
+                                <input type="tel" id="setting-phone" class="input-trade" placeholder="+91 00000 00000">
+                            </div>
+                            <div>
+                                <label class="text-textGray text-xs mb-2 block">Telegram Link</label>
+                                <input type="text" id="setting-telegram" class="input-trade" placeholder="https://t.me/...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass rounded-xl p-4">
+                        <h3 class="font-bold mb-4"><i class="fas fa-shield-alt mr-2 text-danger"></i>Security</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium">Maintenance Mode</p>
+                                    <p class="text-textGray text-xs">Disable all user access</p>
+                                </div>
+                                <div id="toggle-maintenance" class="toggle-switch" onclick="toggleSetting('maintenance')"></div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium">New Registrations</p>
+                                    <p class="text-textGray text-xs">Allow new user signups</p>
+                                </div>
+                                <div id="toggle-registrations" class="toggle-switch active" onclick="toggleSetting('registrations')"></div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium">Withdrawals</p>
+                                    <p class="text-textGray text-xs">Allow user withdrawals</p>
+                                </div>
+                                <div id="toggle-withdrawals" class="toggle-switch active" onclick="toggleSetting('withdrawals')"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="saveSettings()" class="btn-animated w-full bg-primary text-black font-bold py-3 rounded-lg">
+                        <i class="fas fa-save mr-2"></i>Save Settings
+                    </button>
+                </div>
+            </div>
+
+            <!-- LOGS VIEW -->
+            <div id="view-logs" class="view-section hidden animate-fade-in">
+                <div class="sticky-header">
+                    <div class="p-3 border-b border-border">
+                        <div class="flex gap-2 overflow-x-auto no-scrollbar">
+                            <button onclick="filterLogs('all')" class="filter-chip active" data-log="all">All</button>
+                            <button onclick="filterLogs('deposit')" class="filter-chip" data-log="deposit">Deposits</button>
+                            <button onclick="filterLogs('withdrawal')" class="filter-chip" data-log="withdrawal">Withdrawals</button>
+                            <button onclick="filterLogs('user')" class="filter-chip" data-log="user">Users</button>
+                            <button onclick="filterLogs('kyc')" class="filter-chip" data-log="kyc">KYC</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-3">
+                    <div id="logs-list" class="space-y-3">
+                        <div class="text-center py-8">
+                            <div class="loader mx-auto mb-4"></div>
+                            <p class="text-textGray">Loading logs...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Mobile Bottom Navigation -->
+        <nav class="mobile-nav mobile-only">
+            <button onclick="navigateTo('dashboard')" class="mobile-nav-item active" data-view="dashboard">
+                <i class="fas fa-home text-lg"></i><span>Home</span>
+            </button>
+            <button onclick="navigateTo('payments')" class="mobile-nav-item" data-view="payments">
+                <i class="fas fa-money-bill-wave text-lg"></i><span>Payments</span>
+                <span id="nav-pending-badge" class="notif-badge hidden">0</span>
+            </button>
+            <button onclick="navigateTo('users')" class="mobile-nav-item" data-view="users">
+                <i class="fas fa-users text-lg"></i><span>Users</span>
+            </button>
+            <button onclick="navigateTo('trading')" class="mobile-nav-item" data-view="trading">
+                <i class="fas fa-chart-line text-lg"></i><span>Trading</span>
+            </button>
+            <button onclick="navigateTo('settings')" class="mobile-nav-item" data-view="settings">
+                <i class="fas fa-cog text-lg"></i><span>Settings</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Slide-in User Detail Panel -->
+    <div id="slide-panel-overlay" class="slide-panel-overlay" onclick="closeSlidePanel()"></div>
+    <div id="user-detail-panel" class="slide-panel">
+        <div class="sticky top-0 bg-bgDeep z-10 border-b border-border p-4">
+            <div class="flex items-center justify-between">
+                <button onclick="closeSlidePanel()" class="btn-animated w-10 h-10 rounded-lg bg-surfaceLight flex items-center justify-center">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <h2 class="font-bold">User Profile</h2>
+                <button onclick="openUserActions()" class="btn-animated w-10 h-10 rounded-lg bg-surfaceLight flex items-center justify-center">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-4" id="user-detail-content"></div>
+    </div>
+
+    <!-- Bottom Sheet -->
+    <div id="bottom-sheet-overlay" class="bottom-sheet-overlay" onclick="closeBottomSheet()"></div>
+    <div id="action-bottom-sheet" class="bottom-sheet">
+        <div class="p-4 border-b border-border">
+            <div class="w-12 h-1 bg-border rounded-full mx-auto mb-4"></div>
+            <h3 class="font-bold text-center">Actions</h3>
+        </div>
+        <div class="p-4 space-y-2" id="bottom-sheet-content"></div>
+    </div>
+
+    <!-- KYC Modal -->
+    <div id="kyc-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-border flex items-center justify-between">
+                <h3 class="font-bold">KYC Verification</h3>
+                <button onclick="closeKYCModal()" class="w-8 h-8 rounded-lg bg-surfaceLight flex items-center justify-center">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-4" id="kyc-modal-content"></div>
+        </div>
+    </div>
+
+    <!-- NFT Modal -->
+    <div id="nft-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-border flex items-center justify-between">
+                <h3 class="font-bold" id="nft-modal-title">Add NFT</h3>
+                <button onclick="closeNFTModal()" class="w-8 h-8 rounded-lg bg-surfaceLight flex items-center justify-center">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-4 space-y-4">
+                <div>
+                    <label class="text-textGray text-xs mb-2 block">NFT Image</label>
+                    <div class="file-upload-area border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer" onclick="document.getElementById('nft-image').click()" id="nft-image-upload">
+                        <img id="nft-image-preview" class="w-32 h-32 rounded-lg object-cover mx-auto mb-2 hidden">
+                        <i id="nft-image-icon" class="fas fa-image text-3xl text-textGray mb-2"></i>
+                        <p id="nft-image-text" class="text-textGray text-xs">Click to upload image</p>
+                        <input type="file" id="nft-image" class="hidden" accept="image/*" onchange="previewNFTImage(this)">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-textGray text-xs mb-2 block">Name</label>
+                    <input type="text" id="nft-name" class="input-trade" placeholder="NFT Name">
+                </div>
+                <div>
+                    <label class="text-textGray text-xs mb-2 block">Description</label>
+                    <textarea id="nft-description" rows="2" class="input-trade" placeholder="Description..."></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-textGray text-xs mb-2 block">Price</label>
+                        <input type="number" id="nft-price" class="input-trade" placeholder="0">
+                    </div>
+                    <div>
+                        <label class="text-textGray text-xs mb-2 block">Rarity</label>
+                        <select id="nft-rarity" class="input-trade">
+                            <option value="common">Common</option>
+                            <option value="rare">Rare</option>
+                            <option value="epic">Epic</option>
+                            <option value="legendary">Legendary</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-textGray text-xs mb-2 block">Daily Profit (%)</label>
+                        <input type="number" id="nft-daily-profit" class="input-trade" placeholder="0" step="0.1">
+                    </div>
+                    <div>
+                        <label class="text-textGray text-xs mb-2 block">Holding Days</label>
+                        <input type="number" id="nft-holding-days" class="input-trade" placeholder="30">
+                    </div>
+                </div>
+                <button onclick="saveNFT()" class="btn-animated w-full bg-primary text-black font-bold py-3 rounded-lg">
+                    <i class="fas fa-save mr-2"></i>Save NFT
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Plan Modal -->
+    <div id="plan-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-border flex items-center justify-between">
+                <h3 class="font-bold" id="plan-modal-title">Create Plan</h3>
+                <button onclick="closePlanModal()" class="w-8 h-8 rounded-lg bg-surfaceLight flex items-center justify-center">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-4 space-y-4">
+                <div>
+                    <label class="text-textGray text-xs mb-2 block">Plan Name</label>
+                    <input type="text" id="plan-name" class="input-trade" placeholder="Gold Plan">
+                </div>
+                <div>
+                    <label class="text-textGray text-xs mb-2 block">Description</label>
+                    <textarea id="plan-description" rows="2" class="input-trade" placeholder="Plan description..."></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-textGray text-xs mb-2 block">Min Investment</label>
+                        <input type="number" id="plan-min" class="input-trade" placeholder="1000">
+                    </div>
+                    <div>
+                        <label class="text-textGray text-xs mb-2 block">Max Investment</label>
+                        <input type="number" id="plan-max" class="input-trade" placeholder="100000">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-textGray text-xs mb-2 block">Return % (Annual)</label>
+                        <input type="number" id="plan-return" class="input-trade" placeholder="15" step="0.1">
+                    </div>
+                    <div>
+                        <label class="text-textGray text-xs mb-2 block">Duration (Days)</label>
+                        <input type="number" id="plan-duration" class="input-trade" placeholder="90">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-textGray text-xs mb-2 block">Risk Level</label>
+                    <select id="plan-risk" class="input-trade">
+                        <option value="low">Low Risk</option>
+                        <option value="medium">Medium Risk</option>
+                        <option value="high">High Risk</option>
+                    </select>
+                </div>
+                <button onclick="savePlan()" class="btn-animated w-full bg-primary text-black font-bold py-3 rounded-lg">
+                    <i class="fas fa-save mr-2"></i>Save Plan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div id="report-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-border flex items-center justify-between">
+                <h3 class="font-bold">Report Details</h3>
+                <button onclick="closeReportModal()" class="w-8 h-8 rounded-lg bg-surfaceLight flex items-center justify-center">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-4" id="report-modal-content"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // ==========================================
+        // 🔥 FIREBASE CONFIGURATION
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAozV8jcau0GuIKBPCMFAbChm75O9VE1Rs",
+            authDomain: "treding-store-2.firebaseapp.com",
+            databaseURL: "https://treding-store-2-default-rtdb.firebaseio.com",
+            projectId: "treding-store-2",
+            storageBucket: "treding-store-2.firebasestorage.app",
+            messagingSenderId: "2938541914",
+            appId: "1:2938541914:web:7fe53d76a34ec044c90563",
+            measurementId: "G-9YWCKFZKB1"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        db.enablePersistence({ synchronizeTabs: true }).catch(err => {
+            console.log('Persistence error:', err);
+        });
+
+        // ==========================================
+        // ☁️ CLOUDINARY CONFIGURATION
+        // ==========================================
+        const cloudinaryConfig = {
+            cloudName: 'debp1kjtm',
+            uploadPreset: 'sql_admin',
+            folder: 'sql_users'
+        };
+
+        // ==========================================
+        // 🎨 STATE MANAGEMENT
+        // ==========================================
+        const state = {
+            currentAdmin: { uid: 'direct-admin', name: 'Super Admin' }, // Default admin without login
+            currentView: 'dashboard',
+            paymentTab: 'deposits',
+            paymentStatus: 'all',
+            tradingTab: 'orders',
+            userFilter: 'all',
+            kycFilter: 'pending',
+            reportFilter: 'open',
+            logFilter: 'all',
+            users: [],
+            deposits: [],
+            withdrawals: [],
+            transfers: [],
+            kycRequests: [],
+            reports: [],
+            logs: [],
+            nfts: [],
+            plans: [],
+            orders: [],
+            positions: [],
+            notifications: [],
+            settings: {},
+            stats: {
+                totalUsers: 0,
+                totalBalance: 0,
+                pendingDeposits: 0,
+                pendingWithdrawals: 0,
+                newUsersToday: 0
+            },
+            selectedUser: null,
+            selectedKYC: null,
+            selectedReport: null,
+            editingNFT: null,
+            editingPlan: null,
+            listeners: []
+        };
+
+        // ==========================================
+        // 🚀 INITIALIZATION (No Login Required)
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Direct initialization without auth check
+            initializeAdminPanel();
+        });
+
+        async function initializeAdminPanel() {
+            document.getElementById('loader').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+            
+            setupListeners();
+            
+            await Promise.all([
+                loadDashboardStats(),
+                loadUsers(),
+                loadDeposits(),
+                loadWithdrawals(),
+                loadKYCRequests(),
+                loadNFTs(),
+                loadPlans(),
+                loadReports(),
+                loadSettings()
+            ]);
+
+            initActivityChart();
+        }
+
+        function setupListeners() {
+            const usersUnsub = db.collection('users').onSnapshot(snapshot => {
+                state.users = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
+                updateDashboardStats();
+                if (state.currentView === 'users') renderUsers();
+            });
+            state.listeners.push(usersUnsub);
+
+            const depositsUnsub = db.collection('deposits').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                state.deposits = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                updateDashboardStats();
+                if (state.currentView === 'payments' && state.paymentTab === 'deposits') renderDeposits();
+            });
+            state.listeners.push(depositsUnsub);
+
+            const withdrawalsUnsub = db.collection('withdrawals').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                state.withdrawals = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                updateDashboardStats();
+                if (state.currentView === 'payments' && state.paymentTab === 'withdrawals') renderWithdrawals();
+            });
+            state.listeners.push(withdrawalsUnsub);
+
+            const kycUnsub = db.collection('kyc').onSnapshot(snapshot => {
+                state.kycRequests = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                updatePendingCounts();
+                if (state.currentView === 'kyc') renderKYC();
+            });
+            state.listeners.push(kycUnsub);
+
+            const reportsUnsub = db.collection('reports').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                state.reports = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                if (state.currentView === 'reports') renderReports();
+            });
+            state.listeners.push(reportsUnsub);
+        }
+
+        // ==========================================
+        // 🧭 NAVIGATION
+        // ==========================================
+        function navigateTo(view) {
+            state.currentView = view;
+            
+            const titles = {
+                dashboard: 'Dashboard',
+                payments: 'Payments',
+                users: 'Users',
+                trading: 'Trading',
+                kyc: 'KYC Verification',
+                nft: 'NFT Management',
+                investment: 'Investment Plans',
+                reports: 'Reports',
+                notifications: 'Notifications',
+                settings: 'Settings',
+                logs: 'Admin Logs'
+            };
+            document.getElementById('header-title').textContent = titles[view] || 'Admin Panel';
+            
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`view-${view}`)?.classList.remove('hidden');
+            
+            document.querySelectorAll('.mobile-nav-item').forEach(el => {
+                el.classList.toggle('active', el.dataset.view === view);
+            });
+            
+            document.querySelectorAll('.sidebar-item').forEach(el => {
+                el.classList.toggle('active', el.textContent.toLowerCase().includes(view));
+            });
+            
+            window.scrollTo(0, 0);
+            
+            if (view === 'dashboard') loadDashboardStats();
+            else if (view === 'users') renderUsers();
+            else if (view === 'payments') renderPayments();
+            else if (view === 'kyc') renderKYC();
+            else if (view === 'nft') renderNFTs();
+            else if (view === 'investment') renderPlans();
+            else if (view === 'reports') renderReports();
+            else if (view === 'logs') loadLogs();
+        }
+
+        // ==========================================
+        // 📊 DASHBOARD FUNCTIONS
+        // ==========================================
+        async function loadDashboardStats() {
+            try {
+                const usersSnapshot = await db.collection('users').get();
+                const users = usersSnapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
+                
+                const totalUsers = users.length;
+                const totalBalance = users.reduce((sum, u) => sum + (u.spotBalance || 0) + (u.futuresBalance || 0) + (u.marginBalance || 0) + (u.investBalance || 0) + (u.nftBalance || 0), 0);
+                
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const newUsersToday = users.filter(u => u.createdAt && u.createdAt.toDate() >= today).length;
+                
+                const pendingDeposits = state.deposits.filter(d => d.status === 'pending');
+                const pendingDepositAmount = pendingDeposits.reduce((sum, d) => sum + (d.amount || 0), 0);
+                
+                const pendingWithdrawals = state.withdrawals.filter(w => w.status === 'pending');
+                const pendingWithdrawalAmount = pendingWithdrawals.reduce((sum, w) => sum + (w.amount || 0), 0);
+                
+                state.stats = { totalUsers, totalBalance, pendingDeposits: pendingDeposits.length, pendingWithdrawals: pendingWithdrawals.length, newUsersToday };
+                
+                document.getElementById('stat-total-users').textContent = totalUsers.toLocaleString();
+                document.getElementById('stat-total-balance').textContent = '₹' + totalBalance.toLocaleString();
+                document.getElementById('stat-new-users-today').textContent = newUsersToday;
+                document.getElementById('stat-pending-deposits').textContent = pendingDeposits.length;
+                document.getElementById('stat-pending-deposit-amount').textContent = pendingDepositAmount.toLocaleString();
+                document.getElementById('stat-pending-withdrawals').textContent = pendingWithdrawals.length;
+                document.getElementById('stat-pending-withdrawal-amount').textContent = pendingWithdrawalAmount.toLocaleString();
+                
+                updatePendingCounts();
+                
+            } catch (error) {
+                console.error('Dashboard stats error:', error);
+            }
+        }
+
+        function updateDashboardStats() {
+            loadDashboardStats();
+        }
+
+        function updatePendingCounts() {
+            const pendingDeposits = state.deposits.filter(d => d.status === 'pending').length;
+            const pendingKYC = state.kycRequests.filter(k => k.status === 'pending').length;
+            
+            const depositBadge = document.getElementById('sidebar-pending-count');
+            if (depositBadge) {
+                depositBadge.textContent = pendingDeposits;
+                depositBadge.classList.toggle('hidden', pendingDeposits === 0);
+            }
+            
+            const kycBadge = document.getElementById('sidebar-kyc-count');
+            if (kycBadge) {
+                kycBadge.textContent = pendingKYC;
+                kycBadge.classList.toggle('hidden', pendingKYC === 0);
+            }
+            
+            const navBadge = document.getElementById('nav-pending-badge');
+            if (navBadge) {
+                const totalPending = pendingDeposits + state.withdrawals.filter(w => w.status === 'pending').length;
+                navBadge.textContent = totalPending;
+                navBadge.classList.toggle('hidden', totalPending === 0);
+            }
+        }
+
+        function initActivityChart() {
+            const ctx = document.getElementById('activityChart');
+            if (!ctx) return;
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Deposits',
+                        data: [65000, 59000, 80000, 81000, 56000, 55000, 40000],
+                        borderColor: '#00c853',
+                        backgroundColor: 'rgba(0, 200, 83, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Withdrawals',
+                        data: [28000, 48000, 40000, 19000, 86000, 27000, 90000],
+                        borderColor: '#ff3d00',
+                        backgroundColor: 'rgba(255, 61, 0, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#848e9c', font: { size: 11 } }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#848e9c', font: { size: 10 } },
+                            grid: { color: '#2b3139' }
+                        },
+                        y: {
+                            ticks: { color: '#848e9c', font: { size: 10 } },
+                            grid: { color: '#2b3139' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ==========================================
+        // 💰 PAYMENTS FUNCTIONS
+        // ==========================================
+        function switchPaymentTab(tab) {
+            state.paymentTab = tab;
+            
+            document.querySelectorAll('.payment-nav-item').forEach(el => {
+                el.classList.toggle('border-primary', el.dataset.tab === tab);
+                el.classList.toggle('border-transparent', el.dataset.tab !== tab);
+                el.classList.toggle('text-white', el.dataset.tab === tab);
+                el.classList.toggle('text-textGray', el.dataset.tab !== tab);
+            });
+            
+            document.querySelectorAll('#view-payments .tab-content').forEach(el => {
+                el.classList.toggle('active', el.id === `payment-${tab}`);
+            });
+            
+            renderPayments();
+        }
+
+        function filterPaymentStatus(status) {
+            state.paymentStatus = status;
+            
+            document.querySelectorAll('#payment-status-filters .filter-chip').forEach(el => {
+                el.classList.toggle('active', el.dataset.status === status);
+            });
+            
+            renderPayments();
+        }
+
+        function renderPayments() {
+            if (state.paymentTab === 'deposits') renderDeposits();
+            else if (state.paymentTab === 'withdrawals') renderWithdrawals();
+            else if (state.paymentTab === 'transfers') renderTransfers();
+        }
+
+        function renderDeposits() {
+            const container = document.getElementById('deposits-list');
+            let deposits = state.deposits;
+            
+            if (state.paymentStatus !== 'all') {
+                deposits = deposits.filter(d => d.status === state.paymentStatus);
+            }
+            
+            const searchTerm = document.getElementById('payment-search')?.value.toLowerCase() || '';
+            if (searchTerm) {
+                deposits = deposits.filter(d => 
+                    (d.userName?.toLowerCase().includes(searchTerm)) ||
+                    (d.userPhone?.includes(searchTerm)) ||
+                    (d.utr?.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            if (deposits.length === 0) {
+                container.innerHTML = '<p class="text-textGray text-center py-8">No deposits found</p>';
+                return;
+            }
+            
+            container.innerHTML = deposits.map(deposit => `
+                <div class="user-card" onclick="openUserDetail('${deposit.userId}')">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                            <img src="${deposit.userAvatar || 'https://via.placeholder.com/50'}" class="w-12 h-12 rounded-full object-cover" onerror="this.src='https://via.placeholder.com/50'">
+                            <div>
+                                <p class="font-semibold">${deposit.userName || 'Unknown'}</p>
+                                <p class="text-textGray text-xs">${deposit.userPhone || 'No phone'}</p>
+                                <p class="text-textGray text-xs">${deposit.userEmail || ''}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-lg">₹${(deposit.amount || 0).toLocaleString()}</p>
+                            <span class="badge-${deposit.status} text-xs px-2 py-1 rounded-full">${deposit.status?.toUpperCase()}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-textGray mb-3">
+                        <span>UTR: ${deposit.utr || 'N/A'}</span>
+                        <span>${deposit.createdAt ? new Date(deposit.createdAt.toDate()).toLocaleString() : ''}</span>
+                    </div>
+                    ${deposit.screenshot ? `<img src="${deposit.screenshot}" class="w-full h-32 object-cover rounded-lg mb-3 img-zoom" onclick="event.stopPropagation(); zoomImage(this)">` : ''}
+                    ${deposit.status === 'pending' ? `
+                        <div class="flex gap-2">
+                            <button onclick="event.stopPropagation(); approveDeposit('${deposit.id}', '${deposit.userId}', ${deposit.amount})" class="action-btn action-btn-approve flex-1">
+                                <i class="fas fa-check mr-1"></i>Approve
+                            </button>
+                            <button onclick="event.stopPropagation(); rejectDeposit('${deposit.id}')" class="action-btn action-btn-reject flex-1">
+                                <i class="fas fa-times mr-1"></i>Reject
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderWithdrawals() {
+            const container = document.getElementById('withdrawals-list');
+            let withdrawals = state.withdrawals;
+            
+            if (state.paymentStatus !== 'all') {
+                withdrawals = withdrawals.filter(w => w.status === state.paymentStatus);
+            }
+            
+            const searchTerm = document.getElementById('payment-search')?.value.toLowerCase() || '';
+            if (searchTerm) {
+                withdrawals = withdrawals.filter(w => 
+                    (w.userName?.toLowerCase().includes(searchTerm)) ||
+                    (w.userPhone?.includes(searchTerm))
+                );
+            }
+            
+            if (withdrawals.length === 0) {
+                container.innerHTML = '<p class="text-textGray text-center py-8">No withdrawals found</p>';
+                return;
+            }
+            
+            container.innerHTML = withdrawals.map(w => `
+                <div class="user-card" onclick="openUserDetail('${w.userId}')">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                            <img src="${w.userAvatar || 'https://via.placeholder.com/50'}" class="w-12 h-12 rounded-full object-cover" onerror="this.src='https://via.placeholder.com/50'">
+                            <div>
+                                <p class="font-semibold">${w.userName || 'Unknown'}</p>
+                                <p class="text-textGray text-xs">${w.userPhone || 'No phone'}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-lg">₹${(w.amount || 0).toLocaleString()}</p>
+                            <span class="badge-${w.status} text-xs px-2 py-1 rounded-full">${w.status?.toUpperCase()}</span>
+                        </div>
+                    </div>
+                    <div class="text-xs text-textGray mb-2">
+                        <p><i class="fas fa-university mr-1"></i>${w.accountType === 'usdt' ? 'USDT (BEP20)' : 'UPI: ' + (w.upiId || 'N/A')}</p>
+                        ${w.accountType === 'usdt' ? `<p class="mt-1">Address: ${w.address?.substring(0, 20)}...</p>` : ''}
+                    </div>
+                    ${w.status === 'pending' ? `
+                        <div class="flex gap-2">
+                            <button onclick="event.stopPropagation(); approveWithdrawal('${w.id}', '${w.userId}', ${w.amount})" class="action-btn action-btn-approve flex-1">
+                                <i class="fas fa-check mr-1"></i>Approve
+                            </button>
+                            <button onclick="event.stopPropagation(); rejectWithdrawal('${w.id}')" class="action-btn action-btn-reject flex-1">
+                                <i class="fas fa-times mr-1"></i>Reject
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderTransfers() {
+            document.getElementById('transfers-list').innerHTML = '<p class="text-textGray text-center py-8">Transfers feature coming soon</p>';
+        }
+
+        function searchPayments() {
+            renderPayments();
+        }
+
+        // ==========================================
+        // ✅ APPROVE/REJECT FUNCTIONS
+        // ==========================================
+        async function approveDeposit(depositId, userId, amount) {
+            try {
+                const batch = db.batch();
+                
+                const depositRef = db.collection('deposits').doc(depositId);
+                batch.update(depositRef, { 
+                    status: 'approved', 
+                    approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    approvedBy: state.currentAdmin.uid
+                });
+                
+                const userRef = db.collection('users').doc(userId);
+                batch.update(userRef, { 
+                    spotBalance: firebase.firestore.FieldValue.increment(amount),
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                const transactionRef = db.collection('transactions').doc();
+                batch.set(transactionRef, {
+                    userId: userId,
+                    type: 'deposit',
+                    amount: amount,
+                    status: 'completed',
+                    description: 'Deposit approved',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                const notifRef = db.collection('notifications').doc();
+                batch.set(notifRef, {
+                    userId: userId,
+                    title: 'Deposit Approved',
+                    message: `Your deposit of ₹${amount.toLocaleString()} has been approved`,
+                    type: 'deposit',
+                    read: false,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                await batch.commit();
+                await logAction('deposit_approved', `Approved deposit ${depositId} of ₹${amount}`);
+                showToast('Deposit approved successfully');
+            } catch (error) {
+                console.error('Approve deposit error:', error);
+                showToast('Error approving deposit', 'error');
+            }
+        }
+
+        async function rejectDeposit(depositId) {
+            try {
+                await db.collection('deposits').doc(depositId).update({
+                    status: 'rejected',
+                    rejectedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    rejectedBy: state.currentAdmin.uid
+                });
+                await logAction('deposit_rejected', `Rejected deposit ${depositId}`);
+                showToast('Deposit rejected');
+            } catch (error) {
+                console.error('Reject deposit error:', error);
+                showToast('Error rejecting deposit', 'error');
+            }
+        }
+
+        async function approveWithdrawal(withdrawalId, userId, amount) {
+            try {
+                await db.collection('withdrawals').doc(withdrawalId).update({
+                    status: 'approved',
+                    approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    approvedBy: state.currentAdmin.uid
+                });
+                await logAction('withdrawal_approved', `Approved withdrawal ${withdrawalId} of ₹${amount}`);
+                showToast('Withdrawal approved');
+            } catch (error) {
+                console.error('Approve withdrawal error:', error);
+                showToast('Error approving withdrawal', 'error');
+            }
+        }
+
+        async function rejectWithdrawal(withdrawalId) {
+            try {
+                const withdrawal = state.withdrawals.find(w => w.id === withdrawalId);
+                if (!withdrawal) return;
+                
+                const batch = db.batch();
+                
+                const withdrawalRef = db.collection('withdrawals').doc(withdrawalId);
+                batch.update(withdrawalRef, {
+                    status: 'rejected',
+                    rejectedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    rejectedBy: state.currentAdmin.uid
+                });
+                
+                const userRef = db.collection('users').doc(withdrawal.userId);
+                batch.update(userRef, {
+                    spotBalance: firebase.firestore.FieldValue.increment(withdrawal.amount),
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                await batch.commit();
+                await logAction('withdrawal_rejected', `Rejected withdrawal ${withdrawalId}`);
+                showToast('Withdrawal rejected and amount refunded');
+            } catch (error) {
+                console.error('Reject withdrawal error:', error);
+                showToast('Error rejecting withdrawal', 'error');
+            }
+        }
+
+        // ==========================================
+        // 👥 USERS FUNCTIONS
+        // ==========================================
+        async function loadUsers() {}
+
+        function renderUsers() {
+            const container = document.getElementById('users-list');
+            let users = state.users;
+            
+            if (state.userFilter === 'verified') {
+                users = users.filter(u => u.kycStatus === 'verified');
+            } else if (state.userFilter === 'pending') {
+                users = users.filter(u => u.kycStatus === 'pending');
+            } else if (state.userFilter === 'high-balance') {
+                users = users.filter(u => (u.spotBalance || 0) > 50000);
+            } else if (state.userFilter === 'new') {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                users = users.filter(u => u.createdAt && u.createdAt.toDate() >= today);
+            } else if (state.userFilter === 'blocked') {
+                users = users.filter(u => u.blocked);
+            }
+            
+            const searchTerm = document.getElementById('users-search')?.value.toLowerCase() || '';
+            if (searchTerm) {
+                users = users.filter(u => 
+                    (u.name?.toLowerCase().includes(searchTerm)) ||
+                    (u.phone?.includes(searchTerm)) ||
+                    (u.email?.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            if (users.length === 0) {
+                container.innerHTML = '<p class="text-textGray text-center py-8">No users found</p>';
+                return;
+            }
+            
+            container.innerHTML = users.map(user => {
+                const totalBalance = (user.spotBalance || 0) + (user.futuresBalance || 0) + (user.marginBalance || 0) + (user.investBalance || 0) + (user.nftBalance || 0);
+                return `
+                    <div class="user-card" onclick="openUserDetail('${user.uid}')">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <img src="${user.avatar || 'https://via.placeholder.com/50'}" class="w-12 h-12 rounded-full object-cover" onerror="this.src='https://via.placeholder.com/50'">
+                                <div>
+                                    <p class="font-semibold">${user.name || 'Unknown'}</p>
+                                    <p class="text-textGray text-xs">${user.phone ? user.phone.substring(0, 5) + '****' : 'No phone'}</p>
+                                    <p class="text-textGray text-xs">Joined: ${user.createdAt ? new Date(user.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-bold">₹${totalBalance.toLocaleString()}</p>
+                                <span class="badge-${user.kycStatus === 'verified' ? 'approved' : user.kycStatus === 'pending' ? 'pending' : 'rejected'} text-xs px-2 py-1 rounded-full">
+                                    ${user.kycStatus?.toUpperCase() || 'UNVERIFIED'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterUsers(filter) {
+            state.userFilter = filter;
+            document.querySelectorAll('#view-users .filter-chip').forEach(el => {
+                el.classList.toggle('active', el.dataset.filter === filter);
+            });
+            renderUsers();
+        }
+
+        function searchUsers() {
+            renderUsers();
+        }
+
+        // ==========================================
+        // 👤 USER DETAIL PANEL
+        // ==========================================
+        async function openUserDetail(userId) {
+            const user = state.users.find(u => u.uid === userId);
+            if (!user) return;
+            
+            state.selectedUser = user;
+            
+            const totalBalance = (user.spotBalance || 0) + (user.futuresBalance || 0) + (user.marginBalance || 0) + (user.investBalance || 0) + (user.nftBalance || 0);
+            
+            const content = document.getElementById('user-detail-content');
+            content.innerHTML = `
+                <div class="text-center mb-6">
+                    <img src="${user.avatar || 'https://via.placeholder.com/100'}" class="w-24 h-24 rounded-full mx-auto mb-3 object-cover" onerror="this.src='https://via.placeholder.com/100'">
+                    <h2 class="font-bold text-xl">${user.name || 'Unknown'}</h2>
+                    <p class="text-textGray">${user.email || ''}</p>
+                    <div class="flex items-center justify-center gap-2 mt-2">
+                        <span class="badge-${user.kycStatus === 'verified' ? 'approved' : user.kycStatus === 'pending' ? 'pending' : 'rejected'} text-xs px-3 py-1 rounded-full">
+                            ${user.kycStatus?.toUpperCase() || 'UNVERIFIED'}
+                        </span>
+                        ${user.blocked ? '<span class="badge-rejected text-xs px-3 py-1 rounded-full">BLOCKED</span>' : ''}
+                    </div>
+                </div>
+                
+                <div class="glass rounded-xl p-4 mb-4">
+                    <h3 class="font-bold mb-3">Balances (Editable)</h3>
+                    <div class="space-y-3">
+                        ${['spot', 'futures', 'margin', 'invest', 'nft'].map(type => `
+                            <div class="editable-field">
+                                <span class="text-textGray text-sm w-20">${type.charAt(0).toUpperCase() + type.slice(1)}</span>
+                                <input type="number" id="edit-${type}-${user.uid}" value="${user[type + 'Balance'] || 0}" class="text-right">
+                                <button onclick="saveUserBalance('${user.uid}', '${type}Balance', document.getElementById('edit-${type}-${user.uid}').value)" class="text-primary">
+                                    <i class="fas fa-save"></i>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-border">
+                        <div class="flex justify-between">
+                            <span class="font-bold">Total</span>
+                            <span class="font-bold text-primary">₹${totalBalance.toLocaleString()}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass rounded-xl p-4 mb-4">
+                    <h3 class="font-bold mb-3">User Info</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between"><span class="text-textGray">Phone</span><span>${user.phone || 'N/A'}</span></div>
+                        <div class="flex justify-between"><span class="text-textGray">Referral Code</span><span>${user.referralCode || 'N/A'}</span></div>
+                        <div class="flex justify-between"><span class="text-textGray">Joined</span><span>${user.createdAt ? new Date(user.createdAt.toDate()).toLocaleString() : 'N/A'}</span></div>
+                        <div class="flex justify-between"><span class="text-textGray">Last Login</span><span>${user.lastLogin ? new Date(user.lastLogin.toDate()).toLocaleString() : 'N/A'}</span></div>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button onclick="toggleBlockUser('${user.uid}', ${!user.blocked})" class="flex-1 py-3 rounded-lg font-bold ${user.blocked ? 'bg-primary text-black' : 'bg-danger text-white'}">
+                        <i class="fas fa-${user.blocked ? 'unlock' : 'ban'} mr-2"></i>${user.blocked ? 'Unblock' : 'Block'}
+                    </button>
+                    <button onclick="deleteUser('${user.uid}')" class="flex-1 bg-rose text-white py-3 rounded-lg font-bold">
+                        <i class="fas fa-trash mr-2"></i>Delete
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('slide-panel-overlay').classList.add('open');
+            document.getElementById('user-detail-panel').classList.add('open');
+        }
+
+        function closeSlidePanel() {
+            document.getElementById('slide-panel-overlay').classList.remove('open');
+            document.getElementById('user-detail-panel').classList.remove('open');
+            state.selectedUser = null;
+        }
+
+        async function saveUserBalance(userId, field, value) {
+            try {
+                const amount = parseFloat(value) || 0;
+                await db.collection('users').doc(userId).update({
+                    [field]: amount,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                await logAction('balance_edited', `Edited ${field} for user ${userId} to ₹${amount}`);
+                showToast('Balance updated');
+            } catch (error) {
+                console.error('Save balance error:', error);
+                showToast('Error updating balance', 'error');
+            }
+        }
+
+        async function toggleBlockUser(userId, block) {
+            try {
+                await db.collection('users').doc(userId).update({
+                    blocked: block,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                await logAction(block ? 'user_blocked' : 'user_unblocked', `${block ? 'Blocked' : 'Unblocked'} user ${userId}`);
+                showToast(`User ${block ? 'blocked' : 'unblocked'}`);
+                closeSlidePanel();
+            } catch (error) {
+                console.error('Block user error:', error);
+                showToast('Error updating user', 'error');
+            }
+        }
+
+        async function deleteUser(userId) {
+            if (!confirm('Are you sure? This action cannot be undone!')) return;
+            try {
+                await db.collection('users').doc(userId).delete();
+                await logAction('user_deleted', `Deleted user ${userId}`);
+                showToast('User deleted');
+                closeSlidePanel();
+            } catch (error) {
+                console.error('Delete user error:', error);
+                showToast('Error deleting user', 'error');
+            }
+        }
+
+        // ==========================================
+        // 🆔 KYC FUNCTIONS
+        // ==========================================
+        function filterKYC(status) {
+            state.kycFilter = status;
+            document.querySelectorAll('#view-kyc .filter-chip').forEach(el => {
+                el.classList.toggle('active', el.dataset.kyc === status);
+            });
+            renderKYC();
+        }
+
+        function renderKYC() {
+            const container = document.getElementById('kyc-list');
+            let kycList = state.kycRequests;
+            
+            if (state.kycFilter !== 'all') {
+                kycList = kycList.filter(k => k.status === state.kycFilter);
+            }
+            
+            if (kycList.length === 0) {
+                container.innerHTML = '<p class="text-textGray text-center py-8">No KYC requests found</p>';
+                return;
+            }
+            
+            container.innerHTML = kycList.map(kyc => `
+                <div class="user-card" onclick="openKYCDetail('${kyc.id}')">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <img src="${kyc.userAvatar || 'https://via.placeholder.com/50'}" class="w-12 h-12 rounded-full object-cover" onerror="this.src='https://via.placeholder.com/50'">
+                            <div>
+                                <p class="font-semibold">${kyc.userName || 'Unknown'}</p>
+                                <p class="text-textGray text-xs">${kyc.documentType?.toUpperCase() || 'N/A'}: ${kyc.documentNumber || 'N/A'}</p>
+                                <p class="text-textGray text-xs">Submitted: ${kyc.submittedAt ? new Date(kyc.submittedAt.toDate()).toLocaleDateString() : 'N/A'}</p>
+                            </div>
+                        </div>
+                        <span class="badge-${kyc.status === 'verified' ? 'approved' : kyc.status === 'pending' ? 'pending' : 'rejected'} text-xs px-2 py-1 rounded-full">
+                            ${kyc.status?.toUpperCase()}
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openKYCDetail(kycId) {
+            const kyc = state.kycRequests.find(k => k.id === kycId);
+            if (!kyc) return;
+            
+            state.selectedKYC = kyc;
+            
+            const content = document.getElementById('kyc-modal-content');
+            content.innerHTML = `
+                <div class="text-center mb-4">
+                    <img src="${kyc.userAvatar || 'https://via.placeholder.com/80'}" class="w-20 h-20 rounded-full mx-auto mb-2 object-cover">
+                    <h3 class="font-bold">${kyc.userName || 'Unknown'}</h3>
+                    <p class="text-textGray text-sm">${kyc.userEmail || ''}</p>
+                </div>
+                <div class="space-y-3 mb-4">
+                    <div class="glass rounded-lg p-3">
+                        <p class="text-textGray text-xs">Document Type</p>
+                        <p class="font-semibold">${kyc.documentType?.toUpperCase() || 'N/A'}</p>
+                    </div>
+                    <div class="glass rounded-lg p-3">
+                        <p class="text-textGray text-xs">Document Number</p>
+                        <p class="font-semibold">${kyc.documentNumber || 'N/A'}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div>
+                        <p class="text-textGray text-xs mb-1">Selfie</p>
+                        <img src="${kyc.selfieUrl || ''}" class="w-full h-32 object-cover rounded-lg img-zoom" onclick="zoomImage(this)" onerror="this.style.display='none'">
+                    </div>
+                    <div>
+                        <p class="text-textGray text-xs mb-1">Document</p>
+                        <img src="${kyc.documentUrl || ''}" class="w-full h-32 object-cover rounded-lg img-zoom" onclick="zoomImage(this)" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                ${kyc.status === 'pending' ? `
+                    <div class="flex gap-3">
+                        <button onclick="verifyKYC('${kyc.id}', '${kyc.userId}', true)" class="flex-1 bg-primary text-black py-3 rounded-lg font-bold">
+                            <i class="fas fa-check mr-2"></i>Verify
+                        </button>
+                        <button onclick="verifyKYC('${kyc.id}', '${kyc.userId}', false)" class="flex-1 bg-danger text-white py-3 rounded-lg font-bold">
+                            <i class="fas fa-times mr-2"></i>Reject
+                        </button>
+                    </div>
+                ` : ''}
+                ${kyc.rejectionReason ? `
+                    <div class="bg-danger/10 border border-danger/30 rounded-lg p-3 mt-3">
+                        <p class="text-danger text-sm font-bold">Rejection Reason:</p>
+                        <p class="text-textGray text-sm">${kyc.rejectionReason}</p>
+                    </div>
+                ` : ''}
+            `;
+            
+            document.getElementById('kyc-modal').classList.add('active');
+        }
+
+        function closeKYCModal() {
+            document.getElementById('kyc-modal').classList.remove('active');
+            state.selectedKYC = null;
+        }
+
+        async function verifyKYC(kycId, userId, approve) {
+            try {
+                const batch = db.batch();
+                
+                const kycRef = db.collection('kyc').doc(kycId);
+                batch.update(kycRef, {
+                    status: approve ? 'verified' : 'rejected',
+                    [approve ? 'verifiedAt' : 'rejectedAt']: firebase.firestore.FieldValue.serverTimestamp(),
+                    [approve ? 'verifiedBy' : 'rejectedBy']: state.currentAdmin.uid
+                });
+                
+                const userRef = db.collection('users').doc(userId);
+                batch.update(userRef, {
+                    kycStatus: approve ? 'verified' : 'rejected',
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                const notifRef = db.collection('notifications').doc();
+                batch.set(notifRef, {
+                    userId: userId,
+                    title: approve ? 'KYC Verified' : 'KYC Rejected',
+                    message: approve ? 'Your KYC has been verified successfully!' : 'Your KYC was rejected. Please resubmit.',
+                    type: 'kyc',
+                    read: false,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                await batch.commit();
+                await logAction(approve ? 'kyc_verified' : 'kyc_rejected', `${approve ? 'Verified' : 'Rejected'} KYC ${kycId}`);
+                showToast(approve ? 'KYC verified' : 'KYC rejected');
+                closeKYCModal();
+            } catch (error) {
+                console.error('KYC verification error:', error);
+                showToast('Error processing KYC', 'error');
+            }
+        }
+
+        // ==========================================
+        // 🎨 NFT MANAGEMENT
+        // ==========================================
+        async function loadNFTs() {
+            try {
+                const snapshot = await db.collection('nfts').get();
+                state.nfts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            } catch (error) {
+                console.error('Load NFTs error:', error);
+            }
+        }
+
+        function renderNFTs() {
+            const container = document.getElementById('nft-grid');
+            
+            if (state.nfts.length === 0) {
+                container.innerHTML = '<p class="text-textGray text-center py-8 col-span-2">No NFTs found</p>';
+                return;
+            }
+            
+            container.innerHTML = state.nfts.map(nft => `
+                <div class="glass rounded-xl overflow-hidden" onclick="editNFT('${nft.id}')">
+                    <img src="${nft.image || 'https://via.placeholder.com/200'}" class="w-full h-32 object-cover" onerror="this.src='https://via.placeholder.com/200'">
+                    <div class="p-3">
+                        <p class="font-semibold truncate">${nft.name || 'Unnamed'}</p>
+                        <p class="text-primary font-bold">₹${(nft.price || 0).toLocaleString()}</p>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="text-xs text-textGray">${nft.rarity || 'Common'}</span>
+                            <span class="text-xs ${nft.status === 'available' ? 'text-primary' : 'text-danger'}">${nft.status || 'N/A'}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openAddNFTModal() {
+            state.editingNFT = null;
+            document.getElementById('nft-modal-title').textContent = 'Add NFT';
+            document.getElementById('nft-name').value = '';
+            document.getElementById('nft-description').value = '';
+            document.getElementById('nft-price').value = '';
+            document.getElementById('nft-rarity').value = 'common';
+            document.getElementById('nft-daily-profit').value = '';
+            document.getElementById('nft-holding-days').value = '';
+            document.getElementById('nft-image-preview').classList.add('hidden');
+            document.getElementById('nft-image-icon').classList.remove('hidden');
+            document.getElementById('nft-image-text').textContent = 'Click to upload image';
+            document.getElementById('nft-modal').classList.add('active');
+        }
+
+        function editNFT(nftId) {
+            const nft = state.nfts.find(n => n.id === nftId);
+            if (!nft) return;
+            
+            state.editingNFT = nft;
+            document.getElementById('nft-modal-title').textContent = 'Edit NFT';
+            document.getElementById('nft-name').value = nft.name || '';
+            document.getElementById('nft-description').value = nft.description || '';
+            document.getElementById('nft-price').value = nft.price || '';
+            document.getElementById('nft-rarity').value = nft.rarity || 'common';
+            document.getElementById('nft-daily-profit').value = nft.dailyProfit || '';
+            document.getElementById('nft-holding-days').value = nft.holdingDays || '';
+            
+            if (nft.image) {
+                document.getElementById('nft-image-preview').src = nft.image;
+                document.getElementById('nft-image-preview').classList.remove('hidden');
+                document.getElementById('nft-image-icon').classList.add('hidden');
+                document.getElementById('nft-image-text').textContent = 'Click to change image';
+            }
+            
+            document.getElementById('nft-modal').classList.add('active');
+        }
+
+        function closeNFTModal() {
+            document.getElementById('nft-modal').classList.remove('active');
+            state.editingNFT = null;
+        }
+
+        function previewNFTImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    document.getElementById('nft-image-preview').src = e.target.result;
+                    document.getElementById('nft-image-preview').classList.remove('hidden');
+                    document.getElementById('nft-image-icon').classList.add('hidden');
+                    document.getElementById('nft-image-text').textContent = 'Click to change image';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        async function saveNFT() {
+            try {
+                const name = document.getElementById('nft-name').value;
+                const price = parseFloat(document.getElementById('nft-price').value) || 0;
+                
+                if (!name || !price) {
+                    showToast('Name and price are required', 'error');
+                    return;
+                }
+                
+                const nftData = {
+                    name: name,
+                    description: document.getElementById('nft-description').value,
+                    price: price,
+                    rarity: document.getElementById('nft-rarity').value,
+                    dailyProfit: parseFloat(document.getElementById('nft-daily-profit').value) || 0,
+                    holdingDays: parseInt(document.getElementById('nft-holding-days').value) || 30,
+                    status: 'available',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                const imageFile = document.getElementById('nft-image').files[0];
+                if (imageFile) {
+                    const formData = new FormData();
+                    formData.append('file', imageFile);
+                    formData.append('upload_preset', cloudinaryConfig.uploadPreset);
+                    formData.append('folder', 'sql_nfts');
+                    
+                    const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+                    nftData.image = data.secure_url;
+                }
+                
+                if (state.editingNFT) {
+                    await db.collection('nfts').doc(state.editingNFT.id).update(nftData);
+                    await logAction('nft_updated', `Updated NFT ${state.editingNFT.id}`);
+                    showToast('NFT updated');
+                } else {
+                    nftData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('nfts').add(nftData);
+                    await logAction('nft_created', 'Created new NFT');
+                    showToast('NFT created');
+                }
+                
+                closeNFTModal();
+                loadNFTs();
+            } catch (error) {
+                console.error('Save NFT error:', error);
+                showToast('Error saving NFT', 'error');
+            }
+        }
+
+        // ==========================================
+        // 💎 INVESTMENT PLANS
+        // ==========================================
+        async function loadPlans() {
+            try {
+                const snapshot = await db.collection('investPlans').get();
+                state.plans = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            } catch (error) {
+                console.error('Load plans error:', error);
+            }
+        }
+
+        function renderPlans() {
+            const container = document.getElementById('plans-list');
+            
+            if (state.plans.length === 0) {
+                container.innerHTML = '<p class="text-textGray text-center py-8">No investment plans found</p>';
+                return;
+            }
+            
+            container.innerHTML = state.plans.map(plan => `
+                <div class="glass rounded-xl p-4" onclick="editPlan('${plan.id}')">
+                    <div class="flex items-start justify-between mb-2">
+                        <div>
+                            <p class="font-bold">${plan.name || 'Unnamed Plan'}</p>
+                            <p class="text-textGray text-xs">${plan.duration || 0} days</p>
+                        </div>
+                        <span class="badge-${plan.risk === 'low' ? 'approved' : plan.risk === 'medium' ? 'pending' : 'rejected'} text-xs px-2 py-1 rounded-full">
+                            ${plan.risk?.toUpperCase() || 'LOW'}
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <p class="text-primary font-bold">${plan.returnRate || 0}% APR</p>
+                        <p class="text-textGray text-xs">₹${(plan.min || 0).toLocaleString()} - ₹${(plan.max || 0).toLocaleString()}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openAddPlanModal() {
+            state.editingPlan = null;
+            document.getElementById('plan-modal-title').textContent = 'Create Plan';
+            document.getElementById('plan-name').value = '';
+            document.getElementById('plan-description').value = '';
+            document.getElementById('plan-min').value = '';
+            document.getElementById('plan-max').value = '';
+            document.getElementById('plan-return').value = '';
+            document.getElementById('plan-duration').value = '';
+            document.getElementById('plan-risk').value = 'low';
+            document.getElementById('plan-modal').classList.add('active');
+        }
+
+        function editPlan(planId) {
+            const plan = state.plans.find(p => p.id === planId);
+            if (!plan) return;
+            
+            state.editingPlan = plan;
+            document.getElementById('plan-modal-title').textContent = 'Edit Plan';
+            document.getElementById('plan-name').value = plan.name || '';
+            document.getElementById('plan-description').value = plan.description || '';
+            document.getElementById('plan-min').value = plan.min || '';
+            document.getElementById('plan-max').value = plan.max || '';
+            document.getElementById('plan-return').value = plan.returnRate || '';
+            document.getElementById('plan-duration').value = plan.duration || '';
+            document.getElementById('plan-risk').value = plan.risk || 'low';
+            document.getElementById('plan-modal').classList.add('active');
+        }
+
+        function closePlanModal() {
+            document.getElementById('plan-modal').classList.remove('active');
+            state.editingPlan = null;
+        }
+
+        async function savePlan() {
+            try {
+                const name = document.getElementById('plan-name').value;
+                const min = parseFloat(document.getElementById('plan-min').value) || 0;
+                const max = parseFloat(document.getElementById('plan-max').value) || 0;
+                const returnRate = parseFloat(document.getElementById('plan-return').value) || 0;
+                
+                if (!name || !min || !max || !returnRate) {
+                    showToast('Please fill all required fields', 'error');
+                    return;
+                }
+                
+                const planData = {
+                    name: name,
+                    description: document.getElementById('plan-description').value,
+                    min: min,
+                    max: max,
+                    returnRate: returnRate,
+                    duration: parseInt(document.getElementById('plan-duration').value) || 90,
+                    risk: document.getElementById('plan-risk').value,
+                    active: true,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                if (state.editingPlan) {
+                    await db.collection('investPlans').doc(state.editingPlan.id).update(planData);
+                    await logAction('plan_updated', `Updated plan ${state.editingPlan.id}`);
+                    showToast('Plan updated');
+                } else {
+                    planData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('investPlans').add(planData);
+                    await logAction('plan_created', 'Created new investment plan');
+                    showToast('Plan created');
+                }
+                
+                closePlanModal();
+                loadPlans();
+            } catch (error) {
+                console.error('Save plan error:', error);
+                showToast('Error saving plan', 'error');
+            }
+        }
+
+        // ==========================================
+        // 🚨 REPORTS FUNCTIONS
+        // ==========================================
+        function filterReports(status) {
+            state.reportFilter = status;
+            document.querySelectorAll('#view-reports .filter-chip').forEach(el => {
+                el.classList.toggle('active', el.dataset.report === status);
+            });
+            renderReports();
+        }
+
+        function renderReports() {
+            const container = document.getElementById('reports-list');
+            let reports = state.reports;
+            
+            if (state.reportFilter !== 'all') {
+                reports = reports.filter(r => r.status === state.reportFilter);
+            }
+            
+            if (reports.length === 0) {
+                container.innerHTML = '<p class="text-textGray text-center py-8">No reports found</p>';
+                return;
+            }
+            
+            container.innerHTML = reports.map(report => `
+                <div class="user-card" onclick="openReportDetail('${report.id}')">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="font-semibold">${report.subject || 'No Subject'}</p>
+                            <p class="text-textGray text-xs">${report.type || 'General'} | ${report.userName || 'Unknown'}</p>
+                            <p class="text-textGray text-xs">${report.createdAt ? new Date(report.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
+                        </div>
+                        <span class="badge-${report.status === 'resolved' ? 'approved' : 'pending'} text-xs px-2 py-1 rounded-full">
+                            ${report.status?.toUpperCase() || 'OPEN'}
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openReportDetail(reportId) {
+            const report = state.reports.find(r => r.id === reportId);
+            if (!report) return;
+            
+            state.selectedReport = report;
+            
+            const content = document.getElementById('report-modal-content');
+            content.innerHTML = `
+                <div class="mb-4">
+                    <p class="text-textGray text-xs">Subject</p>
+                    <p class="font-semibold">${report.subject || 'No Subject'}</p>
+                </div>
+                <div class="mb-4">
+                    <p class="text-textGray text-xs">Type</p>
+                    <p class="font-semibold">${report.type || 'General'}</p>
+                </div>
+                <div class="mb-4">
+                    <p class="text-textGray text-xs">User</p>
+                    <p class="font-semibold">${report.userName || 'Unknown'} (${report.userEmail || 'N/A'})</p>
+                </div>
+                <div class="mb-4">
+                    <p class="text-textGray text-xs">Description</p>
+                    <p class="text-sm mt-1">${report.description || 'No description'}</p>
+                </div>
+                ${report.attachment ? `<div class="mb-4"><p class="text-textGray text-xs">Attachment</p><img src="${report.attachment}" class="w-full h-40 object-cover rounded-lg mt-1 img-zoom" onclick="zoomImage(this)"></div>` : ''}
+                ${report.status !== 'resolved' ? `
+                    <button onclick="resolveReport('${report.id}')" class="w-full bg-primary text-black py-3 rounded-lg font-bold">
+                        <i class="fas fa-check mr-2"></i>Mark as Resolved
+                    </button>
+                ` : ''}
+            `;
+            
+            document.getElementById('report-modal').classList.add('active');
+        }
+
+        function closeReportModal() {
+            document.getElementById('report-modal').classList.remove('active');
+            state.selectedReport = null;
+        }
+
+        async function resolveReport(reportId) {
+            try {
+                await db.collection('reports').doc(reportId).update({
+                    status: 'resolved',
+                    resolvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    resolvedBy: state.currentAdmin.uid
+                });
+                await logAction('report_resolved', `Resolved report ${reportId}`);
+                showToast('Report marked as resolved');
+                closeReportModal();
+            } catch (error) {
+                console.error('Resolve report error:', error);
+                showToast('Error resolving report', 'error');
+            }
+        }
+
+        // ==========================================
+        // 🔔 NOTIFICATIONS
+        // ==========================================
+        function toggleUserIdField() {
+            const target = document.getElementById('notif-target').value;
+            document.getElementById('notif-user-id-container').classList.toggle('hidden', target !== 'specific');
+        }
+
+        async function sendNotification() {
+            try {
+                const target = document.getElementById('notif-target').value;
+                const title = document.getElementById('notif-title').value;
+                const message = document.getElementById('notif-message').value;
+                
+                if (!title || !message) {
+                    showToast('Title and message are required', 'error');
+                    return;
+                }
+                
+                const notifData = {
+                    title: title,
+                    message: message,
+                    type: 'admin',
+                    read: false,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    sentBy: state.currentAdmin.uid
+                };
+                
+                if (target === 'all') {
+                    const batch = db.batch();
+                    state.users.forEach(user => {
+                        const notifRef = db.collection('notifications').doc();
+                        batch.set(notifRef, { ...notifData, userId: user.uid });
+                    });
+                    await batch.commit();
+                    showToast(`Notification sent to ${state.users.length} users`);
+                } else {
+                    const userId = document.getElementById('notif-user-id').value;
+                    if (!userId) {
+                        showToast('User ID is required', 'error');
+                        return;
+                    }
+                    await db.collection('notifications').add({ ...notifData, userId: userId });
+                    showToast('Notification sent');
+                }
+                
+                document.getElementById('notif-title').value = '';
+                document.getElementById('notif-message').value = '';
+                document.getElementById('notif-user-id').value = '';
+                
+            } catch (error) {
+                console.error('Send notification error:', error);
+                showToast('Error sending notification', 'error');
+            }
+        }
+
+        // ==========================================
+        // ⚙️ SETTINGS
+        // ==========================================
+        async function loadSettings() {
+            try {
+                const doc = await db.collection('admin').doc('config').get();
+                if (doc.exists) {
+                    state.settings = doc.data();
+                    
+                    document.getElementById('setting-upi').value = state.settings.upi || '';
+                    document.getElementById('setting-usdt').value = state.settings.usdtAddress || '';
+                    document.getElementById('setting-min-deposit').value = state.settings.minDeposit || 500;
+                    document.getElementById('setting-max-withdrawal').value = state.settings.maxWithdrawal || 100000;
+                    document.getElementById('setting-withdrawal-fee').value = state.settings.withdrawalFee || 0;
+                    document.getElementById('setting-email').value = state.settings.supportEmail || '';
+                    document.getElementById('setting-phone').value = state.settings.supportPhone || '';
+                    document.getElementById('setting-telegram').value = state.settings.telegramLink || '';
+                    
+                    if (state.settings.maintenanceMode) {
+                        document.getElementById('toggle-maintenance').classList.add('active');
+                    }
+                    if (state.settings.allowRegistrations === false) {
+                        document.getElementById('toggle-registrations').classList.remove('active');
+                    }
+                    if (state.settings.allowWithdrawals === false) {
+                        document.getElementById('toggle-withdrawals').classList.remove('active');
+                    }
+                }
+            } catch (error) {
+                console.error('Load settings error:', error);
+            }
+        }
+
+        function toggleSetting(setting) {
+            const toggle = document.getElementById(`toggle-${setting}`);
+            toggle.classList.toggle('active');
+        }
+
+        async function saveSettings() {
+            try {
+                const settings = {
+                    upi: document.getElementById('setting-upi').value,
+                    usdtAddress: document.getElementById('setting-usdt').value,
+                    minDeposit: parseFloat(document.getElementById('setting-min-deposit').value) || 500,
+                    maxWithdrawal: parseFloat(document.getElementById('setting-max-withdrawal').value) || 100000,
+                    withdrawalFee: parseFloat(document.getElementById('setting-withdrawal-fee').value) || 0,
+                    supportEmail: document.getElementById('setting-email').value,
+                    supportPhone: document.getElementById('setting-phone').value,
+                    telegramLink: document.getElementById('setting-telegram').value,
+                    maintenanceMode: document.getElementById('toggle-maintenance').classList.contains('active'),
+                    allowRegistrations: document.getElementById('toggle-registrations').classList.contains('active'),
+                    allowWithdrawals: document.getElementById('toggle-withdrawals').classList.contains('active'),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedBy: state.currentAdmin.uid
+                };
+                
+                await db.collection('admin').doc('config').set(settings, { merge: true });
+                await logAction('settings_updated', 'Updated admin settings');
+                showToast('Settings saved');
+            } catch (error) {
+                console.error('Save settings error:', error);
+                showToast('Error saving settings', 'error');
+            }
+        }
+
+        // ==========================================
+        // 📝 ADMIN LOGS
+        // ==========================================
+        async function loadLogs() {
+            try {
+                const snapshot = await db.collection('adminLogs').orderBy('timestamp', 'desc').limit(100).get();
+                state.logs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderLogs();
+            } catch (error) {
+                console.error('Load logs error:', error);
+            }
+        }
+
+        function renderLogs() {
+            const container = document.getElementById('logs-list');
+            let logs = state.logs;
+            
+            if (state.logFilter !== 'all') {
+                logs = logs.filter(l => l.type === state.logFilter);
+            }
+            
+            if (logs.length === 0) {
+                container.innerHTML = '<p class="text-textGray text-center py-8">No logs found</p>';
+                return;
+            }
+            
+            container.innerHTML = logs.map(log => `
+                <div class="glass rounded-xl p-3">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="font-semibold text-sm">${log.action || 'Unknown Action'}</p>
+                            <p class="text-textGray text-xs">${log.details || ''}</p>
+                            <p class="text-textGray text-xs">By: ${log.adminName || 'Unknown'} | ${log.timestamp ? new Date(log.timestamp.toDate()).toLocaleString() : 'N/A'}</p>
+                        </div>
+                        <span class="text-xs px-2 py-1 rounded-full bg-surface text-textGray">${log.type || 'general'}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterLogs(type) {
+            state.logFilter = type;
+            document.querySelectorAll('#view-logs .filter-chip').forEach(el => {
+                el.classList.toggle('active', el.dataset.log === type);
+            });
+            renderLogs();
+        }
+
+        async function logAction(action, details) {
+            try {
+                await db.collection('adminLogs').add({
+                    action: action,
+                    details: details,
+                    type: action.split('_')[0],
+                    adminId: state.currentAdmin.uid,
+                    adminName: state.currentAdmin.name || 'Admin',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (error) {
+                console.error('Log action error:', error);
+            }
+        }
+
+        // ==========================================
+        // 🛠️ UTILITY FUNCTIONS
+        // ==========================================
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function zoomImage(img) {
+            img.classList.toggle('zoomed');
+        }
+
+        function openUserActions() {
+            const content = document.getElementById('bottom-sheet-content');
+            content.innerHTML = `
+                <button onclick="closeBottomSheet()" class="w-full p-4 text-left flex items-center gap-3 hover:bg-surface rounded-lg">
+                    <i class="fas fa-edit text-primary"></i>Edit Profile
+                </button>
+                <button onclick="closeBottomSheet()" class="w-full p-4 text-left flex items-center gap-3 hover:bg-surface rounded-lg">
+                    <i class="fas fa-history text-blue"></i>View Transactions
+                </button>
+                <button onclick="closeBottomSheet()" class="w-full p-4 text-left flex items-center gap-3 hover:bg-surface rounded-lg">
+                    <i class="fas fa-envelope text-secondary"></i>Send Message
+                </button>
+                <button onclick="closeBottomSheet()" class="w-full p-4 text-left flex items-center gap-3 hover:bg-surface rounded-lg">
+                    <i class="fas fa-ban text-danger"></i>Block User
+                </button>
+            `;
+            document.getElementById('bottom-sheet-overlay').classList.add('open');
+            document.getElementById('action-bottom-sheet').classList.add('open');
+        }
+
+        function openBottomSheet() {
+            document.getElementById('bottom-sheet-overlay').classList.add('open');
+            document.getElementById('action-bottom-sheet').classList.add('open');
+        }
+
+        function closeBottomSheet() {
+            document.getElementById('bottom-sheet-overlay').classList.remove('open');
+            document.getElementById('action-bottom-sheet').classList.remove('open');
+        }
+
+        function openNotificationsPanel() {
+            navigateTo('notifications');
+        }
+
+        function switchTradingTab(tab) {
+            state.tradingTab = tab;
+            
+            document.querySelectorAll('.trading-nav-item').forEach(el => {
+                el.classList.toggle('border-primary', el.dataset.tab === tab);
+                el.classList.toggle('border-transparent', el.dataset.tab !== tab);
+                el.classList.toggle('text-white', el.dataset.tab === tab);
+                el.classList.toggle('text-textGray', el.dataset.tab !== tab);
+            });
+            
+            document.querySelectorAll('#view-trading .tab-content').forEach(el => {
+                el.classList.toggle('active', el.id === `trading-${tab}`);
+            });
+        }
+
+        window.addEventListener('beforeunload', () => {
+            state.listeners.forEach(unsub => {
+                try { unsub(); } catch(e) {}
+            });
+        });
+    </script>
+</body>
+  </html>

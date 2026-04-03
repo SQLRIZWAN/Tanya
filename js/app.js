@@ -35,14 +35,11 @@ const App = (() => {
       if (t) t.classList.add('active');
     }
 
-    // hero
-    const hero = document.getElementById('heroSection');
-    const sh   = document.getElementById('storeHero');
+    // store hero banner
+    const sh = document.getElementById('storeHero');
     if (store === 'all') {
-      hero.style.display = '';
       sh.classList.remove('visible');
     } else {
-      hero.style.display = 'none';
       const s = STORES[store];
       sh.style.background = `linear-gradient(135deg, ${s.dark} 0%, ${s.color} 100%)`;
       sh.innerHTML = `<div class="store-hero-inner">

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Track Order — ShopWorld</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="styles.css"/>
+  <style>
+    .track-page{max-width:780px;margin:40px auto;padding:0 20px 60px}
+    .track-header{text-align:center;margin-bottom:32px}
+    .track-header h1{font-size:28px;font-weight:900;margin-bottom:8px}
+    .track-header p{color:#64748b;font-size:15px}
+    .search-order{background:#fff;border-radius:16px;padding:24px;box-shadow:0 1px 8px rgba(0,0,0,.07);display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+    .search-order input{flex:1;padding:13px 16px;border:2px solid #e5e7eb;border-radius:10px;font-size:14px;font-family:inherit;outline:none;min-width:200px;transition:border-color .2s}
+    .search-order input:focus{border-color:#ff6b35}
+    .btn-track{padding:13px 28px;background:#ff6b35;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;white-space:nowrap;transition:background .2s}
+    .btn-track:hover{background:#e55a24}
+    /* Order card */
+    .order-card{background:#fff;border-radius:16px;padding:24px;box-shadow:0 1px 8px rgba(0,0,0,.07);margin-bottom:20px}
+    .order-card-head{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #f1f5f9}
+    .order-id{font-size:18px;font-weight:900;color:#0f172a}
+    .order-date{font-size:13px;color:#64748b;margin-top:3px}
+    .order-total{font-size:20px;font-weight:900;color:#ff6b35}
+    .status-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:800;letter-spacing:.3px}
+    .status-confirmed   {background:#dbeafe;color:#1d4ed8}
+    .status-processing  {background:#fef3c7;color:#92400e}
+    .status-shipped     {background:#d1fae5;color:#065f46}
+    .status-delivered   {background:#d1fae5;color:#065f46}
+    .status-placed      {background:#f3f4f6;color:#374151}
+    /* Progress timeline */
+    .timeline{position:relative;padding-left:32px;margin-bottom:20px}
+    .timeline::before{content:'';position:absolute;left:11px;top:8px;bottom:8px;width:2px;background:#e5e7eb}
+    .tl-step{position:relative;margin-bottom:20px}
+    .tl-step:last-child{margin-bottom:0}
+    .tl-dot{position:absolute;left:-32px;top:3px;width:22px;height:22px;border-radius:50%;border:3px solid #e5e7eb;background:#fff;display:flex;align-items:center;justify-content:center;z-index:1}
+    .tl-dot.done{border-color:#22c55e;background:#22c55e}
+    .tl-dot.active{border-color:#ff6b35;background:#ff6b35;animation:pulse2 1.5s ease-in-out infinite}
+    @keyframes pulse2{0%,100%{box-shadow:0 0 0 0 rgba(255,107,53,.4)}50%{box-shadow:0 0 0 8px rgba(255,107,53,0)}}
+    .tl-dot i{color:#fff;font-size:10px}
+    .tl-label{font-size:14px;font-weight:700;color:#1e293b}
+    .tl-time{font-size:12px;color:#94a3b8;margin-top:2px}
+    .tl-step.pending .tl-label{color:#94a3b8;font-weight:500}
+    /* Order items */
+    .order-items-title{font-size:14px;font-weight:700;margin-bottom:12px;color:#475569}
+    .order-item-row{display:flex;gap:10px;margin-bottom:10px;align-items:center}
+    .oi-img{width:48px;height:48px;object-fit:contain;border-radius:8px;background:#f8fafc;flex-shrink:0}
+    .oi-name{font-size:13px;font-weight:500;flex:1}
+    .oi-meta{font-size:12px;color:#94a3b8}
+    .oi-price{font-size:14px;font-weight:800;color:#ff6b35;white-space:nowrap}
+    /* Recent orders */
+    .recent-label{font-size:16px;font-weight:800;color:#0f172a;margin-bottom:14px}
+    .recent-item{background:#fff;border-radius:12px;padding:16px 18px;box-shadow:0 1px 6px rgba(0,0,0,.07);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:all .2s}
+    .recent-item:hover{box-shadow:0 4px 16px rgba(0,0,0,.12);transform:translateY(-2px)}
+    .empty-track{text-align:center;padding:60px 20px;color:#94a3b8}
+    .empty-track i{font-size:60px;display:block;margin-bottom:16px;opacity:.3}
+  </style>
+</head>
+<body>
+<header class="header">
+  <div class="header-top">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">🌍</span>ShopWorld<sup class="logo-tag">ALL-IN-ONE</sup>
+    </a>
+    <div style="flex:1"></div>
+    <div class="h-actions">
+      <a class="h-action" href="index.html"><i class="fas fa-shopping-bag"></i><span>Shop</span></a>
+      <a class="h-action" href="checkout.html"><i class="fas fa-credit-card"></i><span>Checkout</span></a>
+    </div>
+  </div>
+</header>
+
+<div class="track-page">
+  <div class="track-header">
+    <h1><i class="fas fa-truck" style="color:#ff6b35"></i> Track Your Order</h1>
+    <p>Enter your Order ID to get real-time status updates</p>
+  </div>
+
+  <div class="search-order">
+    <input type="text" id="trackInput" placeholder="Enter Order ID  e.g. SW-LB8XXXXXX"
+      onkeydown="if(event.key==='Enter') Track.find()"/>
+    <button class="btn-track" onclick="Track.find()">
+      <i class="fas fa-search"></i> Track Order
+    </button>
+  </div>
+
+  <!-- Result area -->
+  <div id="trackResult"></div>
+
+  <!-- Recent orders -->
+  <div id="recentOrders"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="js/config.js"></script>
+<script src="js/track.js"></script>
+</body>
+</html>

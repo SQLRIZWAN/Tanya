@@ -1,26 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ShopWorld – All Stores, One Platform</title>
-  <link rel="stylesheet" href="styles.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>ShopWorld — World's #1 All-in-One Shopping Platform</title>
+  <meta name="description" content="Shop from Amazon, Flipkart, Meesho, Temu, Swiggy, Zomato, Myntra, AJIO, Snapdeal and Nykaa — all in one place."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
 
-<!-- ===== HEADER ===== -->
+<!-- ══ HEADER ══════════════════════════════════════════════ -->
 <header class="header">
   <div class="header-top">
-    <div class="logo">
-      <i class="fas fa-globe-asia"></i>
-      <span>ShopWorld</span>
-      <sup class="logo-badge">ALL-IN-ONE</sup>
-    </div>
+    <!-- Logo -->
+    <a href="index.html" class="logo">
+      <span class="logo-icon">🌍</span>
+      ShopWorld
+      <sup class="logo-tag">ALL-IN-ONE</sup>
+    </a>
 
-    <div class="search-bar">
-      <select id="searchStore" class="search-store-select">
+    <!-- Search -->
+    <div class="search-wrap">
+      <select class="search-store" id="searchStore">
         <option value="all">All Stores</option>
         <option value="amazon">Amazon</option>
         <option value="flipkart">Flipkart</option>
@@ -33,206 +37,180 @@
         <option value="snapdeal">Snapdeal</option>
         <option value="nykaa">Nykaa</option>
       </select>
-      <input type="text" id="searchInput" placeholder="Search products across all stores..." />
-      <button class="search-btn" onclick="searchProducts()">
-        <i class="fas fa-search"></i>
-      </button>
+      <input class="search-input" id="searchInput" type="text" placeholder="Search products across 10+ top stores…" autocomplete="off"/>
+      <button class="search-btn" onclick="App.search()"><i class="fas fa-search"></i></button>
     </div>
 
-    <div class="header-actions">
-      <div class="action-btn" onclick="showCart()">
+    <!-- Actions -->
+    <div class="h-actions">
+      <button class="h-action" onclick="Cart.open()">
         <i class="fas fa-shopping-cart"></i>
-        <span class="badge" id="cartCount">0</span>
+        <span id="cartBadge" class="h-badge">0</span>
         <span>Cart</span>
-      </div>
-      <div class="action-btn">
-        <i class="fas fa-user-circle"></i>
-        <span>Account</span>
-      </div>
-      <div class="action-btn">
+      </button>
+      <a class="h-action" href="track.html">
+        <i class="fas fa-truck"></i>
+        <span>Track</span>
+      </a>
+      <button class="h-action" onclick="App.toggleWishlist()">
         <i class="fas fa-heart"></i>
         <span>Wishlist</span>
-      </div>
+      </button>
     </div>
   </div>
 
   <!-- Store Tabs -->
-  <nav class="store-tabs" id="storeTabs">
-    <button class="tab-btn active" data-store="all" onclick="switchTab('all', this)">
-      <i class="fas fa-th"></i> All Stores
+  <nav class="store-nav" id="storeTabs">
+    <button class="s-tab active" data-store="all" onclick="App.switchStore('all',this)">
+      <i class="fas fa-th-large"></i>&nbsp;All Stores
     </button>
-    <button class="tab-btn amazon" data-store="amazon" onclick="switchTab('amazon', this)">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon" class="store-logo-img"/>
+    <button class="s-tab t-amazon" data-store="amazon" onclick="App.switchStore('amazon',this)">
+      <img class="store-logo" src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon"/>
     </button>
-    <button class="tab-btn flipkart" data-store="flipkart" onclick="switchTab('flipkart', this)">
-      <img src="https://upload.wikimedia.org/wikipedia/en/7/7e/Flipkart_logo.svg" alt="Flipkart" class="store-logo-img"/>
+    <button class="s-tab t-flipkart" data-store="flipkart" onclick="App.switchStore('flipkart',this)">
+      <img class="store-logo" src="https://upload.wikimedia.org/wikipedia/en/7/7e/Flipkart_logo.svg" alt="Flipkart"/>
     </button>
-    <button class="tab-btn meesho" data-store="meesho" onclick="switchTab('meesho', this)">
-      <span class="store-text-logo meesho-text">meesho</span>
+    <button class="s-tab t-meesho" data-store="meesho" onclick="App.switchStore('meesho',this)" style="color:#f43397;font-weight:800">meesho</button>
+    <button class="s-tab t-temu" data-store="temu" onclick="App.switchStore('temu',this)" style="color:#ff4800;font-style:italic;font-weight:900">temu</button>
+    <button class="s-tab t-swiggy" data-store="swiggy" onclick="App.switchStore('swiggy',this)">
+      <i class="fas fa-fire" style="color:#fc8019"></i>&nbsp;Swiggy
     </button>
-    <button class="tab-btn temu" data-store="temu" onclick="switchTab('temu', this)">
-      <span class="store-text-logo temu-text">temu</span>
+    <button class="s-tab t-zomato" data-store="zomato" onclick="App.switchStore('zomato',this)">
+      <i class="fas fa-utensils" style="color:#e23744"></i>&nbsp;Zomato
     </button>
-    <button class="tab-btn swiggy" data-store="swiggy" onclick="switchTab('swiggy', this)">
-      <span class="store-text-logo swiggy-text"><i class="fas fa-fire"></i> Swiggy</span>
-    </button>
-    <button class="tab-btn zomato" data-store="zomato" onclick="switchTab('zomato', this)">
-      <span class="store-text-logo zomato-text"><i class="fas fa-utensils"></i> Zomato</span>
-    </button>
-    <button class="tab-btn myntra" data-store="myntra" onclick="switchTab('myntra', this)">
-      <span class="store-text-logo myntra-text">Myntra</span>
-    </button>
-    <button class="tab-btn ajio" data-store="ajio" onclick="switchTab('ajio', this)">
-      <span class="store-text-logo ajio-text">AJIO</span>
-    </button>
-    <button class="tab-btn snapdeal" data-store="snapdeal" onclick="switchTab('snapdeal', this)">
-      <span class="store-text-logo snapdeal-text">snapdeal</span>
-    </button>
-    <button class="tab-btn nykaa" data-store="nykaa" onclick="switchTab('nykaa', this)">
-      <span class="store-text-logo nykaa-text">Nykaa</span>
-    </button>
+    <button class="s-tab t-myntra" data-store="myntra" onclick="App.switchStore('myntra',this)" style="color:#ff3f6c;font-weight:800">Myntra</button>
+    <button class="s-tab t-ajio" data-store="ajio" onclick="App.switchStore('ajio',this)" style="color:#00b5a0;font-weight:900;letter-spacing:1px">AJIO</button>
+    <button class="s-tab t-snapdeal" data-store="snapdeal" onclick="App.switchStore('snapdeal',this)" style="color:#e40046;font-weight:800">snapdeal</button>
+    <button class="s-tab t-nykaa" data-store="nykaa" onclick="App.switchStore('nykaa',this)" style="color:#fc2779;font-weight:800">Nykaa</button>
   </nav>
 </header>
 
-<!-- ===== HERO BANNER ===== -->
-<div class="hero-banner" id="heroBanner">
-  <div class="hero-content">
-    <h1>World's Biggest Shopping Hub</h1>
-    <p>Shop from Amazon, Flipkart, Meesho, Temu, Swiggy & more — all in one place</p>
+<!-- ══ HERO ════════════════════════════════════════════════ -->
+<section class="hero" id="heroSection">
+  <div class="hero-inner">
+    <h1>World's Biggest <span>Shopping Hub</span></h1>
+    <p>Shop from Amazon, Flipkart, Meesho, Temu, Swiggy &amp; more — all in one place. One cart, one checkout.</p>
     <div class="hero-stats">
-      <div class="stat"><span>10+</span><small>Stores</small></div>
-      <div class="stat"><span>1M+</span><small>Products</small></div>
-      <div class="stat"><span>50+</span><small>Countries</small></div>
-      <div class="stat"><span>24/7</span><small>Delivery</small></div>
+      <div class="hero-stat"><span>10+</span><small>Top Stores</small></div>
+      <div class="hero-stat"><span>150+</span><small>Products</small></div>
+      <div class="hero-stat"><span>50+</span><small>Countries</small></div>
+      <div class="hero-stat"><span>24/7</span><small>Delivery</small></div>
     </div>
+  </div>
+</section>
+
+<!-- Store Hero (shown per-store) -->
+<section class="store-hero" id="storeHero"></section>
+
+<!-- ══ DEALS TICKER ═════════════════════════════════════════ -->
+<div class="deals-bar">
+  <div class="deals-inner">
+    <span class="deal-chip"><i class="fas fa-bolt"></i> Flash Sale — Up to 80% OFF</span>
+    <span class="deal-chip"><i class="fas fa-truck"></i> FREE Delivery on all orders</span>
+    <span class="deal-chip"><i class="fas fa-undo"></i> Easy 30-Day Returns</span>
+    <span class="deal-chip"><i class="fas fa-shield-alt"></i> 100% Authentic Products</span>
+    <span class="deal-chip"><i class="fas fa-tags"></i> Best Price Guarantee</span>
+    <span class="deal-chip"><i class="fas fa-qrcode"></i> UPI Payments Accepted</span>
+    <span class="deal-chip"><i class="fas fa-star"></i> 4.8★ Rated Platform</span>
+    <!-- duplicate for seamless loop -->
+    <span class="deal-chip"><i class="fas fa-bolt"></i> Flash Sale — Up to 80% OFF</span>
+    <span class="deal-chip"><i class="fas fa-truck"></i> FREE Delivery on all orders</span>
+    <span class="deal-chip"><i class="fas fa-undo"></i> Easy 30-Day Returns</span>
+    <span class="deal-chip"><i class="fas fa-shield-alt"></i> 100% Authentic Products</span>
+    <span class="deal-chip"><i class="fas fa-tags"></i> Best Price Guarantee</span>
+    <span class="deal-chip"><i class="fas fa-qrcode"></i> UPI Payments Accepted</span>
+    <span class="deal-chip"><i class="fas fa-star"></i> 4.8★ Rated Platform</span>
   </div>
 </div>
 
-<!-- ===== CATEGORY FILTERS ===== -->
-<div class="category-bar" id="categoryBar">
-  <div class="category-scroll">
-    <button class="cat-btn active" onclick="filterCategory('all', this)">
-      <i class="fas fa-border-all"></i> All
-    </button>
-    <button class="cat-btn" onclick="filterCategory('electronics', this)">
-      <i class="fas fa-laptop"></i> Electronics
-    </button>
-    <button class="cat-btn" onclick="filterCategory('fashion', this)">
-      <i class="fas fa-tshirt"></i> Fashion
-    </button>
-    <button class="cat-btn" onclick="filterCategory('food', this)">
-      <i class="fas fa-hamburger"></i> Food & Grocery
-    </button>
-    <button class="cat-btn" onclick="filterCategory('beauty', this)">
-      <i class="fas fa-spa"></i> Beauty
-    </button>
-    <button class="cat-btn" onclick="filterCategory('home', this)">
-      <i class="fas fa-home"></i> Home & Living
-    </button>
-    <button class="cat-btn" onclick="filterCategory('sports', this)">
-      <i class="fas fa-running"></i> Sports
-    </button>
-    <button class="cat-btn" onclick="filterCategory('toys', this)">
-      <i class="fas fa-gamepad"></i> Toys & Games
-    </button>
-    <button class="cat-btn" onclick="filterCategory('books', this)">
-      <i class="fas fa-book"></i> Books
-    </button>
+<!-- ══ CATEGORY PILLS ═══════════════════════════════════════ -->
+<div class="cat-bar">
+  <div class="cat-scroll">
+    <button class="cat-pill active" onclick="App.filterCat('all',this)"><i class="fas fa-border-all"></i>All</button>
+    <button class="cat-pill" onclick="App.filterCat('electronics',this)"><i class="fas fa-laptop"></i>Electronics</button>
+    <button class="cat-pill" onclick="App.filterCat('fashion',this)"><i class="fas fa-tshirt"></i>Fashion</button>
+    <button class="cat-pill" onclick="App.filterCat('food',this)"><i class="fas fa-hamburger"></i>Food</button>
+    <button class="cat-pill" onclick="App.filterCat('beauty',this)"><i class="fas fa-spa"></i>Beauty</button>
+    <button class="cat-pill" onclick="App.filterCat('home',this)"><i class="fas fa-couch"></i>Home</button>
+    <button class="cat-pill" onclick="App.filterCat('sports',this)"><i class="fas fa-running"></i>Sports</button>
+    <button class="cat-pill" onclick="App.filterCat('grocery',this)"><i class="fas fa-shopping-basket"></i>Grocery</button>
   </div>
 </div>
 
-<!-- ===== MAIN CONTENT ===== -->
-<main class="main-content">
+<!-- ══ FILTER BAR ═══════════════════════════════════════════ -->
+<div class="filter-bar">
+  <span class="result-count" id="resultCount">Loading products…</span>
+  <div class="sort-row">
+    Sort: 
+    <select id="sortSelect" onchange="App.sort()">
+      <option value="relevance">Relevance</option>
+      <option value="price-asc">Price ↑</option>
+      <option value="price-desc">Price ↓</option>
+      <option value="rating">Top Rated</option>
+      <option value="discount">Best Discount</option>
+      <option value="newest">Newest</option>
+    </select>
+  </div>
+</div>
 
-  <!-- Store Banner (changes per tab) -->
-  <div class="store-banner" id="storeBanner" style="display:none;"></div>
-
-  <!-- Deals Strip -->
-  <div class="deals-strip" id="dealsStrip">
-    <div class="deal-item flash">
-      <i class="fas fa-bolt"></i> Flash Sale — Up to 80% OFF
-    </div>
-    <div class="deal-item">
-      <i class="fas fa-truck"></i> Free Delivery on orders above ₹499
-    </div>
-    <div class="deal-item">
-      <i class="fas fa-undo"></i> Easy 30-day Returns
-    </div>
-    <div class="deal-item">
-      <i class="fas fa-shield-alt"></i> 100% Authentic Products
-    </div>
-    <div class="deal-item">
-      <i class="fas fa-tags"></i> Best Price Guarantee
-    </div>
+<!-- ══ MAIN ══════════════════════════════════════════════════ -->
+<main class="main-wrap">
+  <!-- Skeleton while loading -->
+  <div class="skeleton-grid" id="skeletonGrid">
+    <div class="skel-card" style="height:330px"><div class="skel-img"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line short"></div><div class="skel-line shorter"></div></div></div>
+    <div class="skel-card" style="height:330px"><div class="skel-img"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line short"></div><div class="skel-line shorter"></div></div></div>
+    <div class="skel-card" style="height:330px"><div class="skel-img"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line short"></div><div class="skel-line shorter"></div></div></div>
+    <div class="skel-card" style="height:330px"><div class="skel-img"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line short"></div><div class="skel-line shorter"></div></div></div>
+    <div class="skel-card" style="height:330px"><div class="skel-img"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line short"></div><div class="skel-line shorter"></div></div></div>
+    <div class="skel-card" style="height:330px"><div class="skel-img"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line short"></div><div class="skel-line shorter"></div></div></div>
   </div>
 
-  <!-- Sort & Filter Bar -->
-  <div class="filter-bar">
-    <div class="results-count" id="resultsCount">Showing all products</div>
-    <div class="sort-options">
-      <label>Sort by:</label>
-      <select id="sortSelect" onchange="sortProducts()">
-        <option value="relevance">Relevance</option>
-        <option value="price-low">Price: Low to High</option>
-        <option value="price-high">Price: High to Low</option>
-        <option value="rating">Top Rated</option>
-        <option value="newest">Newest First</option>
-        <option value="discount">Best Discount</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- Products Grid -->
-  <div class="products-grid" id="productsGrid">
-    <!-- Products rendered by JS -->
-  </div>
+  <!-- Products -->
+  <div class="products-grid" id="productsGrid" style="display:none"></div>
 
   <!-- Load More -->
-  <div class="load-more-wrap">
-    <button class="load-more-btn" id="loadMoreBtn" onclick="loadMore()">
+  <div class="load-more-area" id="loadMoreArea">
+    <button class="btn-load-more" onclick="App.loadMore()">
       <i class="fas fa-sync-alt"></i> Load More Products
     </button>
   </div>
 </main>
 
-<!-- ===== CART SIDEBAR ===== -->
-<div class="cart-overlay" id="cartOverlay" onclick="hideCart()"></div>
-<div class="cart-sidebar" id="cartSidebar">
-  <div class="cart-header">
-    <h3><i class="fas fa-shopping-cart"></i> Your Cart</h3>
-    <button onclick="hideCart()"><i class="fas fa-times"></i></button>
+<!-- ══ CART DRAWER ══════════════════════════════════════════ -->
+<div class="drawer-bg" id="drawerBg" onclick="Cart.close()"></div>
+<aside class="cart-drawer" id="cartDrawer">
+  <div class="cart-head">
+    <h3><i class="fas fa-shopping-cart"></i> My Cart</h3>
+    <button class="cart-head-close" onclick="Cart.close()"><i class="fas fa-times"></i></button>
   </div>
-  <div class="cart-items" id="cartItems">
-    <div class="empty-cart">
-      <i class="fas fa-shopping-bag"></i>
-      <p>Your cart is empty</p>
-    </div>
+  <div class="cart-body" id="cartBody">
+    <div class="cart-empty"><i class="fas fa-shopping-bag"></i><p>Your cart is empty</p></div>
   </div>
-  <div class="cart-footer" id="cartFooter" style="display:none;">
-    <div class="cart-total">
-      Total: <strong id="cartTotal">₹0</strong>
-    </div>
-    <button class="checkout-btn" onclick="checkout()">
-      Proceed to Checkout <i class="fas fa-arrow-right"></i>
-    </button>
+  <div id="cartFoot" style="display:none" class="cart-foot">
+    <div class="cart-summary"><span>Subtotal</span><span class="cart-total-price" id="cartTotal">₹0</span></div>
+    <div class="cart-saving" id="cartSaving"></div>
+    <a href="checkout.html" class="btn-checkout">
+      Proceed to Checkout &rarr;
+    </a>
+  </div>
+</aside>
+
+<!-- ══ PRODUCT MODAL ════════════════════════════════════════ -->
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)App.closeModal()">
+  <div class="p-modal" id="productModal">
+    <button class="modal-close" onclick="App.closeModal()"><i class="fas fa-times"></i></button>
+    <div id="modalInner"></div>
   </div>
 </div>
 
-<!-- ===== PRODUCT MODAL ===== -->
-<div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
-<div class="product-modal" id="productModal">
-  <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
-  <div class="modal-content" id="modalContent"></div>
-</div>
-
-<!-- ===== FOOTER ===== -->
+<!-- ══ FOOTER ════════════════════════════════════════════════ -->
 <footer class="footer">
   <div class="footer-grid">
     <div class="footer-col">
-      <h4><i class="fas fa-globe-asia"></i> ShopWorld</h4>
-      <p>Your one-stop destination for shopping from all top platforms worldwide.</p>
-      <div class="social-links">
-        <a href="#"><i class="fab fa-facebook"></i></a>
+      <h4>🌍 ShopWorld</h4>
+      <p>Your one-stop destination for all top platforms. One cart, one checkout, real products.</p>
+      <div class="footer-socials">
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
         <a href="#"><i class="fab fa-instagram"></i></a>
         <a href="#"><i class="fab fa-twitter"></i></a>
         <a href="#"><i class="fab fa-youtube"></i></a>
@@ -241,27 +219,27 @@
     <div class="footer-col">
       <h4>Our Stores</h4>
       <ul>
-        <li><a href="#" onclick="switchTab('amazon')">Amazon</a></li>
-        <li><a href="#" onclick="switchTab('flipkart')">Flipkart</a></li>
-        <li><a href="#" onclick="switchTab('meesho')">Meesho</a></li>
-        <li><a href="#" onclick="switchTab('temu')">Temu</a></li>
-        <li><a href="#" onclick="switchTab('myntra')">Myntra</a></li>
+        <li><a href="#" onclick="App.switchStore('amazon')">Amazon</a></li>
+        <li><a href="#" onclick="App.switchStore('flipkart')">Flipkart</a></li>
+        <li><a href="#" onclick="App.switchStore('meesho')">Meesho</a></li>
+        <li><a href="#" onclick="App.switchStore('temu')">Temu</a></li>
+        <li><a href="#" onclick="App.switchStore('myntra')">Myntra</a></li>
       </ul>
     </div>
     <div class="footer-col">
-      <h4>More Stores</h4>
+      <h4>More</h4>
       <ul>
-        <li><a href="#" onclick="switchTab('swiggy')">Swiggy</a></li>
-        <li><a href="#" onclick="switchTab('zomato')">Zomato</a></li>
-        <li><a href="#" onclick="switchTab('ajio')">AJIO</a></li>
-        <li><a href="#" onclick="switchTab('snapdeal')">Snapdeal</a></li>
-        <li><a href="#" onclick="switchTab('nykaa')">Nykaa</a></li>
+        <li><a href="#" onclick="App.switchStore('swiggy')">Swiggy</a></li>
+        <li><a href="#" onclick="App.switchStore('zomato')">Zomato</a></li>
+        <li><a href="#" onclick="App.switchStore('ajio')">AJIO</a></li>
+        <li><a href="#" onclick="App.switchStore('snapdeal')">Snapdeal</a></li>
+        <li><a href="#" onclick="App.switchStore('nykaa')">Nykaa</a></li>
       </ul>
     </div>
     <div class="footer-col">
-      <h4>Help & Support</h4>
+      <h4>Support</h4>
       <ul>
-        <li><a href="#">Track Order</a></li>
+        <li><a href="track.html"><i class="fas fa-truck"></i> Track Order</a></li>
         <li><a href="#">Return Policy</a></li>
         <li><a href="#">Customer Support</a></li>
         <li><a href="#">Shipping Info</a></li>
@@ -270,20 +248,23 @@
     </div>
   </div>
   <div class="footer-bottom">
-    <p>&copy; 2025 ShopWorld. Orders are fulfilled by respective platforms.</p>
-    <div class="payment-icons">
-      <i class="fab fa-cc-visa"></i>
-      <i class="fab fa-cc-mastercard"></i>
-      <i class="fab fa-cc-paypal"></i>
-      <i class="fab fa-google-pay"></i>
+    <span>&copy; 2025 ShopWorld. Orders fulfilled by respective platforms.</span>
+    <div class="pay-icons">
+      <i class="fab fa-cc-visa" title="Visa"></i>
+      <i class="fab fa-cc-mastercard" title="Mastercard"></i>
+      <i class="fab fa-google-pay" title="Google Pay"></i>
+      <i class="fas fa-mobile-alt" title="UPI"></i>
     </div>
   </div>
 </footer>
 
-<!-- Toast Notification -->
+<!-- ══ TOAST ════════════════════════════════════════════════ -->
 <div class="toast" id="toast"></div>
 
-<script src="data.js"></script>
-<script src="app.js"></script>
+<!-- ══ SCRIPTS ══════════════════════════════════════════════ -->
+<script src="js/config.js"></script>
+<script src="js/products.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
